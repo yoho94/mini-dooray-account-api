@@ -1,5 +1,6 @@
 package com.nhn.minidooray.accountapi.service;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import java.util.List;
@@ -20,13 +21,13 @@ public interface AccountService {
 
   public List<AccountDto> findAll();
 
-  public void deactivation(AccountDto accountDto);
+  public void deactivation(AccountAccountStateDto accountDto);
 
   public void deactivationById(String id);
 
   public void deactivationByEmail(String email);
 
-  public void deactivationAll();
+  public void deactivationAllByAccounts(List<AccountDto> accountDtos);
 
 
 

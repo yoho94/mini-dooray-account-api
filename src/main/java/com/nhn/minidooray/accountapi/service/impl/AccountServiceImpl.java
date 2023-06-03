@@ -1,9 +1,14 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
+  private final AccountAccountStateRepository accountAccountStateRepository;
 
   @Override
   public Optional<AccountDto> save(AccountDto accountDto) {
@@ -54,24 +60,45 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public void deactivation(AccountDto accountDto) {
-
-
-
+  public void deactivation(AccountAccountStateDto accountAccountStateDto) {
+    accountAccountStateRepository.save(convertToAccountAccountStateEntity(accountAccountStateDto));
   }
 
   @Override
   public void deactivationById(String id) {
+    AccountDto accountDto=accountRepository.findById(id).map(this::convertToDto).orElse(null);
+    if(accountDto==null){
+      return;
+    }
+    AccountAccountStateDto.PkDto accountAccountStateDtoPkDto= new AccountAccountStateDto.PkDto();
+    accountAccountStateDtoPkDto.builder()
+        .accountId(accountDto.getId())
+        .accountStateCode("02")
+        .changeAt(LocalDateTime.now())
+        .build();
 
+    AccountAccountStateDto accountAccountStateDto=new AccountAccountStateDto();
+    accountAccountStateDto.builder()
+      .pkDto(accountAccountStateDtoPkDto)
+          .build();
+
+    accountAccountStateRepository.save(convertToAccountAccountStateEntity(accountAccountStateDto));
   }
 
   @Override
   public void deactivationByEmail(String email) {
-
+    AccountDto accountDto=accountRepository.findByEmail(email).map(this::convertToDto).orElse(null);
+    if(accountDto==null){
+      return;
+    }
+    deactivationById(accountDto.getId());
   }
 
   @Override
-  public void deactivationAll() {
+  public void deactivationAllByAccounts(List<AccountDto> accountDtos) {
+    for(AccountDto accountDto:accountDtos){
+      deactivationById(accountDto.getId());
+    }
 
   }
 
@@ -88,6 +115,31 @@ public class AccountServiceImpl implements AccountService {
         .id(accountDto.getId())
         .name(accountDto.getName())
         .email(accountDto.getEmail())
+        .build();
+  }
+  private AccountAccountStateDto convertToAccountAccountStateDto(AccountAccountStateEntity accountAccountStateEntity) {
+    return AccountAccountStateDto.builder()
+        .pkDto(convertToAccountAccountStatePkDto(accountAccountStateEntity.getPk()))
+        .build();
+  }
+  private AccountAccountStateEntity convertToAccountAccountStateEntity(AccountAccountStateDto accountAccountStateDto) {
+    return AccountAccountStateEntity.builder()
+        .pk(convertToAccountAccountStatePk(accountAccountStateDto.getPkDto()))
+        .build();
+  }
+  private AccountAccountStateEntity.Pk convertToAccountAccountStatePk(AccountAccountStateDto.PkDto pkDto) {
+    return AccountAccountStateEntity.Pk.builder()
+        .accountId(pkDto.getAccountId())
+        .accountStateCode(pkDto.getAccountStateCode())
+        .changeAt(pkDto.getChangeAt())
+        .build();
+  }
+
+  private AccountAccountStateDto.PkDto convertToAccountAccountStatePkDto(AccountAccountStateEntity.Pk pk) {
+    return AccountAccountStateDto.PkDto.builder()
+        .accountId(pk.getAccountId())
+        .accountStateCode(pk.getAccountStateCode())
+        .changeAt(pk.getChangeAt())
         .build();
   }
 }

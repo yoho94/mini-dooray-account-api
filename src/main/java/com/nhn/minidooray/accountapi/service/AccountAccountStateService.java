@@ -1,28 +1,39 @@
 package com.nhn.minidooray.accountapi.service;
 
-/**
- * -- -----------------------------------------------------
- * -- Table `nhn_academy_15`.`ACCOUNT_ACCOUNT_STATE`
- * -- -----------------------------------------------------
- * CREATE TABLE IF NOT EXISTS `nhn_academy_15`.`ACCOUNT_ACCOUNT_STATE`
- * (
- *     `ACCOUNT_ID`         VARCHAR(40) NOT NULL,
- *     `ACCOUNT_STATE_CODE` CHAR(2)     NOT NULL,
- *     `CHANGE_AT`          DATETIME    NOT NULL DEFAULT NOW(),
- *     PRIMARY KEY (`ACCOUNT_ID`, `ACCOUNT_STATE_CODE`, `CHANGE_AT`),
- *     INDEX `fk_ACCOUNT_ACCOUNT_STATE_ACCOUNT_STATE1_idx` (`ACCOUNT_STATE_CODE` ASC) VISIBLE,
- *     CONSTRAINT `fk_ACCOUNT_ACCOUNT_STATE_ACCOUNT1`
- *         FOREIGN KEY (`ACCOUNT_ID`)
- *             REFERENCES `nhn_academy_15`.`ACCOUNT` (`ID`)
- *             ON DELETE NO ACTION
- *             ON UPDATE NO ACTION,
- *     CONSTRAINT `fk_ACCOUNT_ACCOUNT_STATE_ACCOUNT_STATE1`
- *         FOREIGN KEY (`ACCOUNT_STATE_CODE`)
- *             REFERENCES `nhn_academy_15`.`ACCOUNT_STATE` (`CODE`)
- *             ON DELETE NO ACTION
- *             ON UPDATE NO ACTION
- * )
- *     ENGINE =
- */
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
+import java.util.List;
+import java.util.Optional;
+
+
 public interface AccountAccountStateService {
+  public Optional<AccountAccountStateDto> save(AccountAccountStateDto accountAccountStateDto);
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "일반적인 경우에 업데이트 하지 않습니다.", forRemoval = true)
+  public Optional<AccountAccountStateDto> update(AccountAccountStateDto accountAccountStateDto);
+  public List<AccountAccountStateDto> findAllByAccountIdAndAccountStateCode(String accountId, String accountStateCode);
+  public List<AccountAccountStateDto> findAll();
+  public List<AccountAccountStateDto> findAllByAccountStateCode(String accountStateCode);
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+  public void delete(AccountAccountStateDto accountAccountStateDto);
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+  public void deleteByAccountIdAndAccountStateCode(String accountId, String accountStateCode);
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+  public void deleteAllByAccountId(String accountId);
+  /**
+   * @deprecated
+   */
+  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+  public void deleteAllByAccountStateCode(String accountStateCode);
+
 }

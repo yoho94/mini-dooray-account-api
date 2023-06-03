@@ -19,10 +19,7 @@ public class AccountStateServiceImpl implements AccountStateService {
   public Optional<AccountStateDto> save(AccountStateDto accountStateDto) {
     return Optional.of(convertToDto(accountStateRepository.save(convertToEntity(accountStateDto))));
   }
-/**
-  * @deprecated
- */
-  @Deprecated(since = "일반적인 경우에 업데이트 하지 않습니다.", forRemoval = true)
+
   @Override
   public Optional<AccountStateDto> update(AccountStateDto accountStateDto) {
     Optional<AccountStateEntity> existed=accountStateRepository.findById(accountStateDto.getCode());
@@ -42,10 +39,6 @@ public class AccountStateServiceImpl implements AccountStateService {
     return Optional.empty();
   }
 
-  /**
-   * @deprecated
-   */
-  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
   @Override
   public void delete(AccountStateDto accountStateDto) {
     Optional<AccountStateEntity> existed=accountStateRepository.findById(accountStateDto.getCode());
@@ -54,10 +47,7 @@ public class AccountStateServiceImpl implements AccountStateService {
     }
     accountStateRepository.delete(existed.get());
   }
-  /**
-   * @deprecated
-   */
-  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+
   @Override
   public void deleteByCode(String code) {
     Optional<AccountStateEntity> existed=accountStateRepository.findById(code);
@@ -67,10 +57,7 @@ public class AccountStateServiceImpl implements AccountStateService {
     accountStateRepository.delete(existed.get());
 
   }
-  /**
-   * @deprecated
-   */
-  @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
+
   @Override
   public void deleteAll() {
     accountStateRepository.deleteAll();
