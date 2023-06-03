@@ -30,7 +30,7 @@ import lombok.Setter;
 @Generated
 public class AccountAccountStateEntity {
 @EmbeddedId
-  private AccountAccountStatePk accountAccountStatePk;
+  private Pk pk;
 @MapsId("accountId")
 @ManyToOne
 @JoinColumn(name = "ACCOUNT_ID",referencedColumnName = "ID",nullable = false)
@@ -48,7 +48,7 @@ private LocalDateTime changeAt;
 @AllArgsConstructor
 @Builder
 @Generated
-public static class AccountAccountStatePk implements Serializable {
+public static class Pk implements Serializable {
   @Max(40)
   private String accountId;
   @Max(2)
