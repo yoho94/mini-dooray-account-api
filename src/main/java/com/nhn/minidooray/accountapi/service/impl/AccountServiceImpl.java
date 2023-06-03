@@ -4,7 +4,9 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountService;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,11 @@ public class AccountServiceImpl implements AccountService {
       return Optional.empty();
     }
     return existedAccount.map(this::convertToDto);
+  }
+
+  @Override
+  public List<AccountDto> findAll() {
+    return accountRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
   @Override

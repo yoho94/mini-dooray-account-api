@@ -4,7 +4,9 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,11 @@ public class AccountStateServiceImpl implements AccountStateService {
       return Optional.empty();
     }
     return existed.map(this::convertToDto);
+  }
+
+  @Override
+  public List<AccountStateDto> findAll() {
+    return accountStateRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
   @Override
