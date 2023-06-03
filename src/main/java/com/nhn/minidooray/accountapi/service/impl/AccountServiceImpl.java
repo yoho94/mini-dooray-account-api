@@ -14,17 +14,17 @@ public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
 
   @Override
-  public Optional<AccountDto> save(AccountEntity accountEntity) {
-    return Optional.of(convertToDto(accountRepository.save(accountEntity)));
+  public Optional<AccountDto> save(AccountDto accountDto) {
+    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
   }
 
   @Override
-  public Optional<AccountDto> update(AccountDto accountEntity) {
-    Optional<AccountEntity> existedAccount=accountRepository.findById(accountEntity.getId());
+  public Optional<AccountDto> update(AccountDto accountDto) {
+    Optional<AccountEntity> existedAccount=accountRepository.findById(accountDto.getId());
     if(existedAccount.isEmpty()){
       return Optional.empty();
     }
-    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountEntity))));
+    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
   }
 
   @Override
@@ -47,7 +47,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public void deactivation(AccountDto accountEntity) {
+  public void deactivation(AccountDto accountDto) {
 
 
 
@@ -73,6 +73,7 @@ public class AccountServiceImpl implements AccountService {
         .id(accountEntity.getId())
         .name(accountEntity.getName())
         .email(accountEntity.getEmail())
+
         .build();
   }
   private AccountEntity convertToEntity(AccountDto accountDto) {

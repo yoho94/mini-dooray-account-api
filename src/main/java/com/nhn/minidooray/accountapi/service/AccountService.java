@@ -1,7 +1,7 @@
 package com.nhn.minidooray.accountapi.service;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import java.util.Optional;
 
 /**
@@ -9,15 +9,15 @@ import java.util.Optional;
  */
 
 public interface AccountService {
-  public Optional<AccountDto> save(AccountEntity accountEntity);
+  public Optional<AccountDto> save(AccountDto accountDto);
 
-  public Optional<AccountDto> update(AccountDto accountEntity);
+  public Optional<AccountDto> update(AccountDto accountDto);
 
   public Optional<AccountDto> findById(String id);
 
   public Optional<AccountDto> findByEmail(String email);
 
-  public void deactivation(AccountDto accountEntity);
+  public void deactivation(AccountDto accountDto);
 
   public void deactivationById(String id);
 
