@@ -2,13 +2,15 @@ package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
+import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
 import com.nhn.minidooray.accountapi.service.AccountService;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Service;
 public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
   private final AccountAccountStateRepository accountAccountStateRepository;
+
+  private final AccountStateRepository accountStateRepository;
 
   @Override
   public Optional<AccountDto> save(AccountDto accountDto) {
@@ -70,15 +74,19 @@ public class AccountServiceImpl implements AccountService {
     if(accountDto==null){
       return;
     }
-    AccountAccountStateDto.PkDto accountAccountStateDtoPkDto= new AccountAccountStateDto.PkDto();
-    accountAccountStateDtoPkDto.builder()
+    AccountStateDto accountStateDto=accountStateRepository.findById("02").map(this::convertToAccountStateEntity).orElse(null);
+    if(accountStateDto==null){
+      return;
+    }
+    AccountAccountStateDto.PkDto accountAccountStateDtoPkDto= AccountAccountStateDto.PkDto
+        .builder()
         .accountId(accountDto.getId())
-        .accountStateCode("02")
+        .accountStateCode(accountStateDto.getCode())
         .changeAt(LocalDateTime.now())
         .build();
 
-    AccountAccountStateDto accountAccountStateDto=new AccountAccountStateDto();
-    accountAccountStateDto.builder()
+    AccountAccountStateDto accountAccountStateDto=AccountAccountStateDto
+    .builder()
       .pkDto(accountAccountStateDtoPkDto)
           .build();
 
@@ -140,6 +148,20 @@ public class AccountServiceImpl implements AccountService {
         .accountId(pk.getAccountId())
         .accountStateCode(pk.getAccountStateCode())
         .changeAt(pk.getChangeAt())
+        .build();
+  }
+  private AccountStateEntity convertToAccountStateDto(AccountStateDto accountStateDto) {
+    return AccountStateEntity.builder()
+        .code(accountStateDto.getCode())
+        .name(accountStateDto.getName())
+        .createAt(accountStateDto.getCreateAt())
+        .build();
+  }
+  private AccountStateDto convertToAccountStateEntity(AccountStateEntity accountStateEntity) {
+    return AccountStateDto.builder()
+        .code(accountStateEntity.getCode())
+        .name(accountStateEntity.getName())
+        .createAt(accountStateEntity.getCreateAt())
         .build();
   }
 }
