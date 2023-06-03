@@ -5,6 +5,8 @@ import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
 import com.nhn.minidooray.accountapi.service.AccountApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,5 +29,10 @@ public class AccountApiController {
         return ResultResponse.<Void>builder()
                 .build();
     }
+//    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-accounts-by-id}?id={id}")
+//    public ResultResponse<Void> readAccountsByID(@PathVariable("id") String id) {
+//
+//
+//    }
 
 }
