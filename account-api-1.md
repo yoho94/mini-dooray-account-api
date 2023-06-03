@@ -83,44 +83,50 @@ GET /common/accounts?id={id}&page=0&size=20
 
 ```json
 {
-    "header":{
-        "isSuccessful": true,
-        "resultCode": 0,
-        "resultMessage": ""
-    },
-    "result" :[{
-        "id":"{id}", /* 두레이 사용자 아이디*/
-        "name":"{name}", /* 사용자 이름*/
-        "email":"{email}", /* 회원 이메일*/
-        "accountAccountState":{
-            "accountStateCode":"{accountStateCode}",
-            "changeAt":"{changeAt}"
-        }
-    }],
-    "totalCount":20
+  "header":{
+    "isSuccessful": true,
+    "resultCode": 0,
+    "resultMessage": ""
+  },
+  "result" :[{
+    "id":"{id}", /* 두레이 사용자 아이디*/
+    "name":"{name}", /* 사용자 이름*/
+    "email":"{email}", /* 회원 이메일*/
+    "accountAccountState":{
+      "accountStateCode":"{accountStateCode}",
+      "changeAt":"{changeAt}"
+    }
+  }],
+  "totalCount":20
 }
 ```
 
 > 메모 : accountStateCode를 accountAccountState에서만 가져온다고 가정했는데, accountState에도 참조해야하는건지 헷갈려서 이렇게 넣어둡니다.
 ##### HTTP 응답 코드
 ---
+### 회원 상세 조회
 #### GET /common/accounts/account
 - 개별 멤버를 응답
 - 멤버 id로 접근하며, 디테일한 멤버 정보를 응답합니다.
 
 ##### Request
 - Parameters
-
+- candidateKey를 쓸 경우 아이디, 이메일 구분하는 로직을 사용한다.
 
 |항목명|항목명(영문)|항목크기|항목구분|샘플데이터|비고|
 |---|----|---|--|---|--|
 |사용자 아이디|id|40|필수|sampleId|회원 아이디로 검색|
+|사용자 이메일|email|100|옵션|sample@dooray.com|회원 이메일로 검색|
+|사용자 후보키|candidateKey|100|필수|sampleId</br> sampleId@dooray.com|사용자 이름 또는 이메일이 들어가는 항목|
+
 
 
 ##### 요청 에제
 
 ```http
 GET /common/accounts/account?id="id"
+GET /common/accounts/account?email="email"
+GET /common/accounts/account?candidateKey="candidateKey" 
 ```
 ##### Response
 
@@ -153,6 +159,9 @@ GET /common/accounts/account?id="id"
 ##### HTTP 응답 코드
 
 ---
+<!-- ### 회원 보안 조회
+
+#### POST /common/secure  -->
 
 ### 회원 가입
 #### POST /common/accounts/save
@@ -207,16 +216,129 @@ GET /common/accounts/account?id="id"
     }
 }
 
+```
+
 > 메모 : RestController에서 accountAccountState와 accountState 부분을 잘 처리해야함.
 
-```
 ##### HTTP 응답코드
 
 ---
 
 ### 회원 수정
-#### PUT /common/accounts/update/{account-Id}
+- 이름, 비밀번호 변경만 지원한다.
+#### PUT /common/accounts/update
+- 회원 상태 변경이 아닌, 회원 정보 변경만 처리
+##### 요청 예제
+```HTTP
+PUT /common/accounts/update?cadidateKey={cadidateKey} /* candidateKey는 아이디 혹은 이메일(@dooray.com)를 구분한 값 */
+```
+#### 회원정보 변경
+
+##### Request
+- Parameter
+
+|항목명|항목명(영문)|항목크기|항목구분|샘플데이터|비고|
+|---|----|---|--|---|--|
+|사용자 후보키|candidateKey|100|필수|sampleId</br> sampleId@dooray.com|사용자 이름 또는 이메일이 들어가는 항목|
 
 
+- Body - 이름
+
+```json
+{
+
+    "name": "{name}", /* 수정된 이름 */
+}
+```
+- Body - 패스워드
+
+```json
+{
+    "password": "{password}" /* 수정된 비밀번호 */
+}
+```
+
+##### Response
+- Body - 이름
+
+```json
+ {
+    "header": {
+        "isSuccessful": true,
+        "resultCode": 0,
+        "resultMessage": "Account name updated successfully."
+    },
+    "result": null
+}
+``` 
+
+- Body - 패스워드
+```json
+ {
+    "header": {
+        "isSuccessful": true,
+        "resultCode": 0,
+        "resultMessage": "Account password updated successfully."
+    },
+    "result": null
+}
+``` 
+##### HTTP 상태 코드
+
+### 회원상태 변경
+- acountAcountState를 가입, 탈퇴, 휴면, 활동 상태로 변경해야 한다.
+- acountAcountState는 로그성 테이블로 데이터가 상태 변경 정보가 기록된다.
+
+- Parameter
+
+|항목명|항목명(영문)|항목크기|항목구분|샘플데이터|비고|
+|---|----|---|--|---|--|
+|사용자 후보키|candidateKey|100|필수|sampleId</br> sampleId@dooray.com|사용자 이름 또는 이메일이 들어가는 항목|
+
+
+#### POST /common/accounts?사용자 식별자={사용자 식별자}/state/save
+
+
+##### 요청 예시
+```HTTP
+POST /common/accounts?email{email}/state/save
+
+POST /common/accounts?id{id}/state/save
+
+POST /common/accounts?candidateKey{candidateKey}/state/save
+```
+##### Request
+
+|항목명|항목명(영문)|항목크기|항목구분|샘플데이터|비고|
+|---|----|---|--|---|--|
+|사용자 아이디|id|40|필수|sampleId|사용자 아이디가 들어가는 항목|
+|사용자 상태코드|accountStateCode|2|필수|01|사용자의 상태|
+|사용자 상태변경 날짜시간|changeAt|datetime|필수| 2023-06-02T13:46:02|now()|
+
+
+
+- Body
+
+```json
+{
+    "id" : "sampleId",
+    "accountStateCode": "01",
+    "changeAt": "2023-06-02T13:46:02"
+}
+```
+
+##### Response
+- Body
+```json
+ {
+    "header": {
+        "isSuccessful": true,
+        "resultCode": 0,
+        "resultMessage": "AccountState save successfully."
+    },
+    "result": null
+}
+```
+##### HTTP 응답코드
 #### DELETE /common/accounts/delete/{account-Id}
 
