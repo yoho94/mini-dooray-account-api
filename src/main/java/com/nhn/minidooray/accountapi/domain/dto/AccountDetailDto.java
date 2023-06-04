@@ -17,7 +17,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Generated
 public class AccountDetailDto {
-  private String id;
+  private AccountDetailSerialDto accountDetailSerialDto;
   private String name;
   private String email;
   private LocalDateTime lastLoginAt;

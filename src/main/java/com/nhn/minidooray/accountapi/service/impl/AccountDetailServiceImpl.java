@@ -1,7 +1,10 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDetailDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDetailDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDetailSerialDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDetailDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
@@ -9,7 +12,7 @@ import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
-import com.nhn.minidooray.accountapi.service.AccountService;
+import com.nhn.minidooray.accountapi.service.AccountDetailService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,49 +20,54 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * AccountDetailService imple은 AccountDetailDto에 AccountSerialDto를 임시로 넣어보았음.
+ * 잘 동작하면 다른 것들도 추가할 예정
+ */
 @Service
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService {
+public class AccountDetailServiceImpl implements AccountDetailService
+{
   private final AccountRepository accountRepository;
   private final AccountAccountStateRepository accountAccountStateRepository;
-
   private final AccountStateRepository accountStateRepository;
 
   @Override
-  public Optional<AccountDto> save(AccountDto accountDto) {
-    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
+  public Optional<AccountDetailDto> save(AccountDetailDto accountDetailDto) {
+    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDetailDto))));
   }
 
   @Override
-  public Optional<AccountDto> update(AccountDto accountDto) {
-    Optional<AccountEntity> existedAccount=accountRepository.findById(accountDto.getId());
-    if(existedAccount.isEmpty()){
+  public Optional<AccountDetailDto> update(AccountDetailDto accountDetailDto) {
+    Optional<AccountEntity> accountEntity=accountRepository.findById(accountDetailDto.getAccountDetailSerialDto().getId());
+    if(accountEntity.isEmpty()){
       return Optional.empty();
     }
-    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
+    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDetailDto))));
   }
 
+
   @Override
-  public Optional<AccountDto> findById(String id) {
-    Optional<AccountEntity> existedAccount=accountRepository.findById(id);
-    if(existedAccount.isEmpty()){
+  public Optional<AccountDetailDto> findById(String id) {
+    Optional<AccountEntity> existed=accountRepository.findById(id);
+    if(existed.isEmpty()){
       return Optional.empty();
     }
-    return existedAccount.map(this::convertToDto);
-
+    return Optional.of(convertToDto(existed.get()));
   }
 
   @Override
-  public Optional<AccountDto> findByEmail(String email) {
-    Optional<AccountEntity> existedAccount=accountRepository.findByEmail(email);
-    if(existedAccount.isEmpty()){
+  public Optional<AccountDetailDto> findByEmail(String email) {
+    Optional<AccountEntity> existed=accountRepository.findByEmail(email);
+    if(existed.isEmpty()){
       return Optional.empty();
     }
-    return existedAccount.map(this::convertToDto);
+    return Optional.of(convertToDto(existed.get()));
   }
 
   @Override
-  public List<AccountDto> findAll() {
+  public List<AccountDetailDto> findAll() {
+
     return accountRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
@@ -70,8 +78,8 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void deactivationById(String id) {
-    AccountDto accountDto=accountRepository.findById(id).map(this::convertToDto).orElse(null);
-    if(accountDto==null){
+    AccountDetailDto accountDetailDto=accountRepository.findById(id).map(this::convertToDto).orElse(null);
+    if(accountDetailDto==null){
       return;
     }
     AccountStateDto accountStateDto=accountStateRepository.findById("02").map(this::convertToAccountStateEntity).orElse(null);
@@ -80,54 +88,55 @@ public class AccountServiceImpl implements AccountService {
     }
     AccountAccountStateDto.PkDto accountAccountStateDtoPkDto= AccountAccountStateDto.PkDto
         .builder()
-        .accountId(accountDto.getId())
+        .accountId(accountDetailDto.getAccountDetailSerialDto().getId())
         .accountStateCode(accountStateDto.getCode())
         .changeAt(LocalDateTime.now())
         .build();
 
     AccountAccountStateDto accountAccountStateDto=AccountAccountStateDto
-    .builder()
-      .pkDto(accountAccountStateDtoPkDto)
-          .build();
+        .builder()
+        .pkDto(accountAccountStateDtoPkDto)
+        .build();
 
     accountAccountStateRepository.save(convertToAccountAccountStateEntity(accountAccountStateDto));
   }
 
   @Override
   public void deactivationByEmail(String email) {
-    AccountDto accountDto=accountRepository.findByEmail(email).map(this::convertToDto).orElse(null);
-    if(accountDto==null){
+    AccountDetailDto accountDetailDto=accountRepository.findByEmail(email).map(this::convertToDto).orElse(null);
+    if(accountDetailDto==null){
       return;
     }
-    deactivationById(accountDto.getId());
+    deactivationById(accountDetailDto.getAccountDetailSerialDto().getId());
   }
 
   @Override
-  public void deactivationAllByAccounts(List<AccountDto> accountDtos) {
-    for(AccountDto accountDto:accountDtos){
-      deactivationById(accountDto.getId());
+  public void deactivationAllByAccounts(List<AccountDetailDto> accountDetailDtos) {
+    for(AccountDetailDto accountDetailDto:accountDetailDtos){
+      deactivationById(accountDetailDto.getAccountDetailSerialDto().getId());
     }
 
   }
-
-  private AccountDto convertToDto(AccountEntity accountEntity) {
-    return AccountDto.builder()
-        .id(accountEntity.getId())
+  private AccountDetailDto convertToDto(AccountEntity accountEntity) {
+    return AccountDetailDto.builder()
+        .accountDetailSerialDto(convertToAccountDetailSerialDto(accountEntity))
         .name(accountEntity.getName())
         .email(accountEntity.getEmail())
         .lastLoginAt(accountEntity.getLastLoginAt())
-
+        .createdAt(accountEntity.getCreateAt())
         .build();
   }
-  private AccountEntity convertToEntity(AccountDto accountDto) {
+  private AccountEntity convertToEntity(AccountDetailDto accountDetailDto) {
     return AccountEntity.builder()
-        .id(accountDto.getId())
-        .name(accountDto.getName())
-        .email(accountDto.getEmail())
+        .id(accountDetailDto.getAccountDetailSerialDto().getId())
+        .name(accountDetailDto.getName())
+        .email(accountDetailDto.getEmail())
         .lastLoginAt(LocalDateTime.now())
+        .createAt(accountDetailDto.getCreatedAt())
         .build();
   }
-  private AccountAccountStateDto convertToAccountAccountStateDto(AccountAccountStateEntity accountAccountStateEntity) {
+  private AccountAccountStateDto convertToAccountAccountStateDto(
+      AccountAccountStateEntity accountAccountStateEntity) {
     return AccountAccountStateDto.builder()
         .pkDto(convertToAccountAccountStatePkDto(accountAccountStateEntity.getPk()))
         .build();
@@ -164,6 +173,11 @@ public class AccountServiceImpl implements AccountService {
         .code(accountStateEntity.getCode())
         .name(accountStateEntity.getName())
         .createAt(accountStateEntity.getCreateAt())
+        .build();
+  }
+  private AccountDetailSerialDto convertToAccountDetailSerialDto(AccountEntity accountEntity) {
+    return AccountDetailSerialDto.builder()
+        .id(accountEntity.getId())
         .build();
   }
 }

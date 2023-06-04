@@ -1,8 +1,5 @@
 package com.nhn.minidooray.accountapi.domain.dto;
 
-import java.time.LocalDateTime;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -10,7 +7,6 @@ import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,12 +15,6 @@ import lombok.ToString;
 @Setter
 @EqualsAndHashCode
 @Generated
-public class AccountDto {
-  String id;
-  String name;
-  String email;
-  LocalDateTime lastLoginAt;
-
-
-
+public class AccountDetailSerialDto {
+  private String id;
 }
