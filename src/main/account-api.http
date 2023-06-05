@@ -3,8 +3,8 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "id": "exampleID",
-  "password": "securePassword",
+  "id": "exampleID3",
+  "password": "securePassword2",
   "email": "example@email.com",
   "name": "Example Name"
 }

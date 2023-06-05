@@ -46,7 +46,7 @@ public class AccountApiController {
     }
 
     @GetMapping("/{id}")
-    public ResultResponse<AccountDto> readAccountsByID(@PathVariable("id") String id) {
+    public ResultResponse<AccountDto> readAccountByID(@PathVariable("id") String id) {
         AccountDto account;
 
         try {

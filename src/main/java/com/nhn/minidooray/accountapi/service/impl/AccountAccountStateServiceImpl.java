@@ -2,7 +2,9 @@ package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
+import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
+import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
@@ -31,6 +33,14 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
             accountRepository.getReferenceById(accountAccountStateDto.getPkDto().getAccountId()));
         entity.setAccountState(accountStateRepository.getReferenceById(
             accountAccountStateDto.getPkDto().getAccountStateCode()));
+        if(entity.getAccountState() == null) {
+            throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
+                .getAccountStateCode());
+        }
+        if(entity.getAccount() == null) {
+            throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
+                .getAccountId());
+        }
 
         return convertToDto(accountAccountStateRepository.save(entity));
     }
@@ -42,8 +52,8 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
             return convertToDto(
                 accountAccountStateRepository.save(convertToEntity(accountAccountStateDto)));
         }
-        throw new DataNotFoundException(accountAccountStateDto.getPkDto().getAccountStateCode(),
-            accountAccountStateDto.getPkDto().getAccountId());
+        throw new AccountWithStateNotFoundException();
+
     }
 
     @Override
@@ -52,6 +62,9 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         List<AccountAccountStateEntity> exists = new ArrayList<>(
             accountAccountStateRepository.findAllByAccount_IdAndAccountState_Code(accountId,
                 accountStateCode));
+        if (exists.isEmpty()) {
+            throw new AccountWithStateNotFoundException();
+        }
         return exists.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
@@ -63,8 +76,12 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
 
     @Override
     public List<AccountAccountStateDto> findAllByAccountStateCode(String accountStateCode) {
-        return accountAccountStateRepository.findAllByAccountStateCode(accountStateCode).stream()
-            .map(this::convertToDto).collect(Collectors.toList());
+        List<AccountAccountStateEntity> exists = accountAccountStateRepository.findAllByAccountStateCode(
+            accountStateCode);
+        if (exists.isEmpty()) {
+            throw new AccountWithStateNotFoundException();
+        }
+        return exists.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -73,8 +90,8 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
             convertToPk(accountAccountStateDto.getPkDto()))) {
             accountAccountStateRepository.delete(convertToEntity(accountAccountStateDto));
         }
-        throw new DataNotFoundException(accountAccountStateDto.getPkDto().getAccountStateCode(),
-            accountAccountStateDto.getPkDto().getAccountId());
+        throw new AccountWithStateNotFoundException();
+
     }
 
     @Override
@@ -82,7 +99,8 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_IdAndAccountState_Code(
             accountId, accountStateCode);
         if (existed.isEmpty()) {
-            throw new DataNotFoundException(accountId, accountStateCode);
+            throw new AccountWithStateNotFoundException();
+
         }
         accountAccountStateRepository.deleteAll(existed);
     }
@@ -92,7 +110,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_Id(
             accountId);
         if (existed.isEmpty()) {
-            throw new DataNotFoundException(accountId);
+            throw new AccountWithStateNotFoundException();
         }
         accountAccountStateRepository.deleteAll(existed);
     }
@@ -102,7 +120,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccountStateCode(
             accountStateCode);
         if (existed.isEmpty()) {
-            throw new DataNotFoundException(accountStateCode);
+            throw new AccountWithStateNotFoundException();
         }
         accountAccountStateRepository.deleteAll(existed);
 
@@ -111,30 +129,22 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
     private AccountAccountStateDto convertToDto(
         AccountAccountStateEntity accountAccountStateEntity) {
         return AccountAccountStateDto.builder()
-            .pkDto(convertToPkDto(accountAccountStateEntity.getPk()))
-            .build();
+            .pkDto(convertToPkDto(accountAccountStateEntity.getPk())).build();
     }
 
     private AccountAccountStateEntity convertToEntity(
         AccountAccountStateDto accountAccountStateDto) {
         return AccountAccountStateEntity.builder()
-            .pk(convertToPk(accountAccountStateDto.getPkDto()))
-            .build();
+            .pk(convertToPk(accountAccountStateDto.getPkDto())).build();
     }
 
     private AccountAccountStateDto.PkDto convertToPkDto(AccountAccountStateEntity.Pk pk) {
-        return AccountAccountStateDto.PkDto.builder()
-            .accountId(pk.getAccountId())
-            .accountStateCode(pk.getAccountStateCode())
-            .changeAt(pk.getChangeAt())
-            .build();
+        return AccountAccountStateDto.PkDto.builder().accountId(pk.getAccountId())
+            .accountStateCode(pk.getAccountStateCode()).changeAt(pk.getChangeAt()).build();
     }
 
     private AccountAccountStateEntity.Pk convertToPk(AccountAccountStateDto.PkDto pkDto) {
-        return AccountAccountStateEntity.Pk.builder()
-            .accountId(pkDto.getAccountId())
-            .accountStateCode(pkDto.getAccountStateCode())
-            .changeAt(pkDto.getChangeAt())
-            .build();
+        return AccountAccountStateEntity.Pk.builder().accountId(pkDto.getAccountId())
+            .accountStateCode(pkDto.getAccountStateCode()).changeAt(pkDto.getChangeAt()).build();
     }
 }

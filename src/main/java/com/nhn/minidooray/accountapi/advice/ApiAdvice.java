@@ -1,8 +1,11 @@
 package com.nhn.minidooray.accountapi.advice;
 
+import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
 import com.nhn.minidooray.accountapi.exception.LoginFailException;
+import com.nhn.minidooray.accountapi.exception.RecentStateException;
+import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
 import com.nhn.minidooray.accountapi.exception.ValidationFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +35,23 @@ public class ApiAdvice {
     @ExceptionHandler(LoginFailException.class)
     public ResponseEntity<String> handleLoginFailException(LoginFailException ex) {
         String errorMessage = String.format(ex.getMessage(), ex.getId());
+        return ResponseEntity.status(ex.getStatus()).body(errorMessage);
+    }
+
+    @ExceptionHandler(RecentStateException.class)
+    public ResponseEntity<String> handleRecentStateException(RecentStateException ex) {
+        String errorMessage = String.format(ex.getMessage(), ex.getId());
+        return ResponseEntity.status(ex.getStatus()).body(errorMessage);
+    }
+    @ExceptionHandler(AccountWithStateNotFoundException.class)
+    public ResponseEntity<String> handleAccountWithStateNotFoundException(AccountWithStateNotFoundException ex) {
+        String errorMessage = String.format(ex.getMessage());
+        return ResponseEntity.status(ex.getStatus()).body(errorMessage);
+    }
+
+    @ExceptionHandler(ReferencedColumnException.class)
+    public ResponseEntity<String> handleReferencedColumnException(ReferencedColumnException ex) {
+        String errorMessage = String.format(ex.getMessage(),ex.getReferencedColumn());
         return ResponseEntity.status(ex.getStatus()).body(errorMessage);
     }
 }

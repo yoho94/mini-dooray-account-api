@@ -9,6 +9,7 @@ import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
+import com.nhn.minidooray.accountapi.exception.RecentStateException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
@@ -53,6 +54,9 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsById(accountCreateRequest.getId())) {
             throw new DataAlreadyExistsException(accountCreateRequest.getId());
         }
+        if(accountRepository.existsByEmail(accountCreateRequest.getEmail())) {
+            throw new DataAlreadyExistsException(accountCreateRequest.getEmail());
+        }
 
         AccountEntity entity = accountRepository.save(convertToEntity(beforeAccountDto));
 
@@ -95,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDto updateStatusById(String accountId, String statusCode) {
         AccountEntity existedAccount = accountRepository.findById(accountId)
-            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+            .orElseThrow(() -> new DataNotFoundException(accountId));
 
         return updateStatus(convertToDto(existedAccount), statusCode);
     }
@@ -104,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountDto updateStatusByEmail(String email, String statusCode) {
         AccountEntity existedAccount = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+            .orElseThrow(() -> new DataNotFoundException(email));
 
         return updateStatus(convertToDto(existedAccount), statusCode);
     }
@@ -116,7 +120,7 @@ public class AccountServiceImpl implements AccountService {
 
         AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
                 id)
-            .orElseThrow(() -> new NoSuchElementException("최근 상태 없음"));
+            .orElseThrow(() -> new RecentStateException(id));
 
         AccountDto accountDto = convertToDto(existedAccount);
         accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
@@ -128,11 +132,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto findByEmail(String email) {
         AccountEntity existedAccount = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+            .orElseThrow(() -> new DataNotFoundException(email));
 
         AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
                 existedAccount.getId())
-            .orElseThrow(() -> new NoSuchElementException("최근 상태 없음"));
+            .orElseThrow(() -> new RecentStateException(email));
 
         AccountDto accountDto = convertToDto(existedAccount);
         accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
@@ -164,10 +168,9 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void deactivationById(String id) {
 
-        AccountDto accountDto = accountRepository.findById(id).map(this::convertToDto).orElse(null);
-        if (accountDto == null) {
-            return;
-        }
+        AccountDto accountDto = accountRepository.findById(id).map(this::convertToDto)
+            .orElseThrow(() -> new DataNotFoundException(id));
+
         updateStatus(accountDto, AccountStatus.DEACTIVATED.getStatusValue());
     }
 
