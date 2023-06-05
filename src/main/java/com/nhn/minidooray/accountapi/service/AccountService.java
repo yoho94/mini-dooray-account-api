@@ -1,37 +1,40 @@
 package com.nhn.minidooray.accountapi.service;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
-import java.util.List;
-import java.util.Optional;
 
-/**
- * deactivation : 비활성화
- */
+import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+
+import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
+
+import java.util.List;
+
 
 public interface AccountService {
-  public Optional<AccountDto> save(AccountCreateRequest accountCreateRequest);
 
-  public Optional<AccountDto> update(AccountDto accountDto);
+    AccountDto save(AccountCreateRequest accountCreateRequest);
 
-  public Optional<AccountDto> updateStatus(AccountDto accountDto,String statusCode);
+    AccountDto update(AccountDto accountDto);
 
-  public Optional<AccountDto> findById(String id);
+    AccountDto updateStatus(AccountDto accountDto, String statusCode);
 
-  public Optional<AccountDto> findByEmail(String email);
+    AccountDto updateStatusById(String accountId, String statusCode);
 
-  public List<AccountDto> findAll();
+    AccountDto updateStatusByEmail(String email, String statusCode);
 
-  public void deactivation(AccountAccountStateDto accountDto);
+    AccountDto findById(String id);
 
-  public void deactivationById(String id);
+    AccountDto findByEmail(String email);
 
-  public void deactivationByEmail(String email);
+    List<AccountDto> findAll();
 
-  public void deactivationAllByAccounts(List<AccountDto> accountDtos);
+    void deactivation(AccountAccountStateDto accountDto);
 
+    void deactivationById(String id);
 
+    void deactivationByEmail(String email);
+
+    void deactivationAllByAccounts(List<AccountDto> accountDtos);
+
+    void updateByLastLoginAt(String id);
 
 }

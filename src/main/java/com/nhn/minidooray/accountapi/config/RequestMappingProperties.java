@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class RequestMappingProperties {
+
     private String prefix;
 
     private String createAccount;
@@ -15,7 +16,6 @@ public class RequestMappingProperties {
     private String readAccountList;
     private String updateAccount;
     private String deleteAccount;
-
     private String createAccountState;
     private String readAccountStateCurrent;
     private String readAccountStateList;

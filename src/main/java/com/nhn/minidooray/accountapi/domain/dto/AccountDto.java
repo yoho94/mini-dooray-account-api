@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Generated
 public class AccountDto {
-    String id;
-    String password;
-    String name;
-    String email;
-    LocalDateTime lastLoginAt;
-    LocalDateTime createdAt;
-    String accountStateCode;
+    private String id;
+    private String password;
+    private String name;
+    private String email;
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime createdAt;
+    private String accountStateCode;
     private LocalDateTime accountAccountStateChangeAt;
 }

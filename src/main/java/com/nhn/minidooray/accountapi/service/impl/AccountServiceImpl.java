@@ -5,203 +5,221 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
+import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
+import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
+import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-@Deprecated(since = "삭제 예정")
+/**
+ * AccountDetailService imple은 AccountDetailDto에 AccountSerialDto를 임시로 넣어보았음. 잘 동작하면 다른 것들도 추가할 예정
+ */
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AccountServiceImpl implements AccountService {
-  @Value("${com.nhn.minidooray.accountapi.validation.find-account}")
-  private String findAccountMessage;
 
-  private final AccountRepository accountRepository;
-  private final AccountAccountStateService accountAccountStateService;
+    @Value("${com.nhn.minidooray.accountapi.validation.find-account}")
+    private String findAccountMessage;
 
-  private final AccountStateService accountStateService;
+    private final AccountRepository accountRepository;
+    private final AccountAccountStateRepository accountAccountStateRepository;
+    private final AccountAccountStateService accountAccountStateService;
 
-  /**
-   * save시 반드시 accountDto에 .setAccountStateCode를 넣어주어야함.
-   */
+    private final AccountStateService accountStateService;
 
-  @Override
-  @Transactional
-  public Optional<AccountDto> save(AccountCreateRequest accountCreateRequest) {
-    AccountDto beforeAccountDto=convertAccountCreateRequestToAccountDto(accountCreateRequest);
-    Optional<AccountDto>afterAccountDto=updateStatus(beforeAccountDto,AccountStatus.REGISTERED.getStatusValue());
+    /**
+     * save시 반드시 accountDto에 .setAccountStateCode를 넣어주어야함.
+     */
 
-    return Optional.of(convertToDto(accountRepository.save(convertToEntity(afterAccountDto.get()))));
-  }
+    @Override
+    @Transactional
+    public AccountDto save(AccountCreateRequest accountCreateRequest) {
+        AccountDto beforeAccountDto = convertAccountCreateRequestToAccountDto(accountCreateRequest);
+        // 데이터베이스에 저장되기 직전에 createdAt 추가
+        beforeAccountDto.setCreatedAt(LocalDateTime.now());
 
-  /**
-   * 이 업데이트는 회원 정보를 변경하는 기능입니다.
-   */
-  @Override
-  public Optional<AccountDto> update(AccountDto accountDto) {
-    Optional<AccountEntity> existedAccount=accountRepository.findById(accountDto.getId());
-    if(existedAccount.isEmpty()){
-      return Optional.empty();
-    }
-    return Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
-  }
+        if (accountRepository.existsById(accountCreateRequest.getId())) {
+            throw new DataAlreadyExistsException(accountCreateRequest.getId());
+        }
 
-  @Override
-  @Transactional
-  public Optional<AccountDto> updateStatus(AccountDto accountDto, String statusCode) {
-    Optional<AccountStateDto> accountStateDto=accountStateService.findByCode(statusCode);
-    if(accountStateDto.isEmpty()){
-      return Optional.empty();
-    }
-    AccountAccountStateDto.PkDto pkDto=AccountAccountStateDto.PkDto
-        .builder()
-        .accountId(accountDto.getId())
-        .accountStateCode(accountStateDto.get().getCode())
-        .changeAt(LocalDateTime.now())
-        .build();
+        AccountEntity entity = accountRepository.save(convertToEntity(beforeAccountDto));
 
-    AccountAccountStateDto  accountAccountStateDto = AccountAccountStateDto
-        .builder()
-        .pkDto(pkDto)
-        .build();
-    accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
-    accountAccountStateService.save(accountAccountStateDto);
-    return Optional.of(accountDto);
-  }
-
-  @Override
-  public Optional<AccountDto> findById(String id) {
-    Optional<AccountEntity> existedAccount=accountRepository.findById(id);
-    if(existedAccount.isEmpty()){
-      throw new IllegalStateException(findAccountMessage);
-    }
-    return existedAccount.map(this::convertToDto);
-
-  }
-
-  @Override
-  public Optional<AccountDto> findByEmail(String email) {
-    Optional<AccountEntity> existedAccount=accountRepository.findByEmail(email);
-    if(existedAccount.isEmpty()){
-      return Optional.empty();
-    }
-    return existedAccount.map(this::convertToDto);
-  }
-
-  @Override
-  public List<AccountDto> findAll() {
-    return accountRepository.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
-  }
-
-  @Override
-  public void deactivation(AccountAccountStateDto accountAccountStateDto) {
-    accountAccountStateService.save(accountAccountStateDto);
-  }
-  @Transactional
-  @Override
-  public void deactivationById(String id) {
-
-    AccountDto accountDto=accountRepository.findById(id).map(this::convertToDto).orElse(null);
-    if(accountDto==null){
-      return;
-    }
-    updateStatus(accountDto, AccountStatus.DEACTIVATED.getStatusValue());
-  }
-
-  @Transactional
-  @Override
-  public void deactivationByEmail(String email) {
-    AccountDto accountDto=accountRepository.findByEmail(email).map(this::convertToDto).orElse(null);
-    if(accountDto==null){
-      return;
-    }
-    deactivationById(accountDto.getId());
-  }
-
-  @Transactional
-  @Override
-  public void deactivationAllByAccounts(List<AccountDto> accountDtos) {
-    for(AccountDto accountDto:accountDtos){
-      deactivationById(accountDto.getId());
+        return updateStatus(convertToDto(entity), AccountStatus.REGISTERED.getStatusValue());
     }
 
-  }
+    /**
+     * 이 업데이트는 회원 정보를 변경하는 기능입니다.
+     */
+    @Override
+    public AccountDto update(AccountDto accountDto) {
+        if (accountRepository.existsById(accountDto.getId())) {
+            return convertToDto(accountRepository.save(convertToEntity(accountDto)));
+        }
+        throw new IllegalStateException("");
+    }
 
-  private AccountDto convertToDto(AccountEntity accountEntity) {
-    return AccountDto.builder()
-        .id(accountEntity.getId())
-        .name(accountEntity.getName())
-        .email(accountEntity.getEmail())
-        .password(accountEntity.getPassword())
-        .createdAt(accountEntity.getCreateAt())
-        .build();
-  }
-  private AccountEntity convertToEntity(AccountDto accountDto) {
-    return AccountEntity.builder()
-        .id(accountDto.getId())
-        .name(accountDto.getName())
-        .email(accountDto.getEmail())
-        .password(accountDto.getPassword())
-        .createAt(accountDto.getCreatedAt())
-        .build();
-  }
-  private AccountDto convertAccountCreateRequestToAccountDto(AccountCreateRequest accountCreateRequest) {
-    return AccountDto.builder()
-        .name(accountCreateRequest.getName())
-        .email(accountCreateRequest.getEmail())
-        .password(accountCreateRequest.getPassword())
-        .id(accountCreateRequest.getId())
-        .build();
-  }
-//  private AccountAccountStateDto convertToAccountAccountStateDto(AccountAccountStateEntity accountAccountStateEntity) {
-//    return AccountAccountStateDto.builder()
-//        .pkDto(convertToAccountAccountStatePkDto(accountAccountStateEntity.getPk()))
-//        .build();
-//  }
-//  private AccountAccountStateEntity convertToAccountAccountStateEntity(AccountAccountStateDto accountAccountStateDto) {
-//    return AccountAccountStateEntity.builder()
-//        .pk(convertToAccountAccountStatePk(accountAccountStateDto.getPkDto()))
-//        .build();
-//  }
-//  private AccountAccountStateEntity.Pk convertToAccountAccountStatePk(AccountAccountStateDto.PkDto pkDto) {
-//    return AccountAccountStateEntity.Pk.builder()
-//        .accountId(pkDto.getAccountId())
-//        .accountStateCode(pkDto.getAccountStateCode())
-//        .changeAt(pkDto.getChangeAt())
-//        .build();
-//  }
-//
-//  private AccountAccountStateDto.PkDto convertToAccountAccountStatePkDto(AccountAccountStateEntity.Pk pk) {
-//    return AccountAccountStateDto.PkDto.builder()
-//        .accountId(pk.getAccountId())
-//        .accountStateCode(pk.getAccountStateCode())
-//        .changeAt(pk.getChangeAt())
-//        .build();
-//  }
-//  private AccountStateEntity convertToAccountStateDto(AccountStateDto accountStateDto) {
-//    return AccountStateEntity.builder()
-//        .code(accountStateDto.getCode())
-//        .name(accountStateDto.getName())
-//        .createAt(accountStateDto.getCreateAt())
-//        .build();
-//  }
-//  private AccountStateDto convertToAccountStateEntity(AccountStateEntity accountStateEntity) {
-//    return AccountStateDto.builder()
-//        .code(accountStateEntity.getCode())
-//        .name(accountStateEntity.getName())
-//        .createAt(accountStateEntity.getCreateAt())
-//        .build();
-//  }
+    @Override
+    @Transactional
+    public AccountDto updateStatus(AccountDto accountDto, String statusCode) {
+        AccountStateDto accountStateDto = accountStateService.findByCode(statusCode);
+
+        AccountAccountStateDto.PkDto pkDto = AccountAccountStateDto.PkDto
+            .builder()
+            .accountId(accountDto.getId())
+            .accountStateCode(accountStateDto.getCode())
+            .changeAt(LocalDateTime.now())
+            .build();
+
+        AccountAccountStateDto accountAccountStateDto = AccountAccountStateDto
+            .builder()
+            .pkDto(pkDto)
+            .build();
+        accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
+        accountAccountStateService.save(accountAccountStateDto);
+        return accountDto;
+    }
+
+    @Override
+    @Transactional
+    public AccountDto updateStatusById(String accountId, String statusCode) {
+        AccountEntity existedAccount = accountRepository.findById(accountId)
+            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+
+        return updateStatus(convertToDto(existedAccount), statusCode);
+    }
+
+    @Override
+    @Transactional
+    public AccountDto updateStatusByEmail(String email, String statusCode) {
+        AccountEntity existedAccount = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+
+        return updateStatus(convertToDto(existedAccount), statusCode);
+    }
+
+    @Override
+    public AccountDto findById(String id) {
+        AccountEntity existedAccount = accountRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException(id));
+
+        AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
+                id)
+            .orElseThrow(() -> new NoSuchElementException("최근 상태 없음"));
+
+        AccountDto accountDto = convertToDto(existedAccount);
+        accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
+        accountDto.setAccountAccountStateChangeAt(state.getPk().getChangeAt());
+
+        return accountDto;
+    }
+
+    @Override
+    public AccountDto findByEmail(String email) {
+        AccountEntity existedAccount = accountRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalStateException(findAccountMessage));
+
+        AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
+                existedAccount.getId())
+            .orElseThrow(() -> new NoSuchElementException("최근 상태 없음"));
+
+        AccountDto accountDto = convertToDto(existedAccount);
+        accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
+        accountDto.setAccountAccountStateChangeAt(state.getPk().getChangeAt());
+
+        return accountDto;
+    }
+
+    @Override
+    @Transactional
+    public void updateByLastLoginAt(String id) {
+        AccountEntity accountEntity = accountRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException(id));
+        accountEntity.setLastLoginAt(LocalDateTime.now());
+    }
+
+    @Override
+    public List<AccountDto> findAll() {
+        return accountRepository.findAll().stream().map(this::convertToDto)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deactivation(AccountAccountStateDto accountAccountStateDto) {
+        accountAccountStateService.save(accountAccountStateDto);
+    }
+
+    @Transactional
+    @Override
+    public void deactivationById(String id) {
+
+        AccountDto accountDto = accountRepository.findById(id).map(this::convertToDto).orElse(null);
+        if (accountDto == null) {
+            return;
+        }
+        updateStatus(accountDto, AccountStatus.DEACTIVATED.getStatusValue());
+    }
+
+    @Transactional
+    @Override
+    public void deactivationByEmail(String email) {
+        AccountDto accountDto = accountRepository.findByEmail(email).map(this::convertToDto)
+            .orElse(null);
+        if (accountDto == null) {
+            return;
+        }
+        deactivationById(accountDto.getId());
+    }
+
+    @Transactional
+    @Override
+    public void deactivationAllByAccounts(List<AccountDto> accountDtos) {
+        for (AccountDto accountDto : accountDtos) {
+            deactivationById(accountDto.getId());
+        }
+
+    }
+
+    private AccountDto convertToDto(AccountEntity accountEntity) {
+        return AccountDto.builder()
+            .id(accountEntity.getId())
+            .name(accountEntity.getName())
+            .email(accountEntity.getEmail())
+            .password(accountEntity.getPassword())
+            .createdAt(accountEntity.getCreateAt())
+            .lastLoginAt(accountEntity.getLastLoginAt())
+            .build();
+    }
+
+    private AccountEntity convertToEntity(AccountDto accountDto) {
+        return AccountEntity.builder()
+            .id(accountDto.getId())
+            .name(accountDto.getName())
+            .email(accountDto.getEmail())
+            .password(accountDto.getPassword())
+            .createAt(accountDto.getCreatedAt())
+            .build();
+    }
+
+    private AccountDto convertAccountCreateRequestToAccountDto(
+        AccountCreateRequest accountCreateRequest) {
+        return AccountDto.builder()
+            .name(accountCreateRequest.getName())
+            .email(accountCreateRequest.getEmail())
+            .password(accountCreateRequest.getPassword())
+            .id(accountCreateRequest.getId())
+            .build();
+    }
+
 }

@@ -8,7 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 public class ValidationProperties {
-  String createAccount;
-  String findAccount;
+
+    String createAccount;
+    String findAccount;
 
 }

@@ -10,18 +10,10 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
- * CREATE TABLE IF NOT EXISTS `nhn_academy_15`.`ACCOUNT`
- * (
- * `ID`            VARCHAR(40)  NOT NULL,
- * `PASSWORD`      VARCHAR(200) NOT NULL,
- * `SALT`          VARCHAR(45)  NOT NULL,
- * `NAME`          VARCHAR(20)  NOT NULL,
- * `EMAIL`         VARCHAR(100) NOT NULL,
- * `LAST_LOGIN_AT` DATETIME     NULL,
- * `CREATE_AT`     DATETIME     NOT NULL DEFAULT NOW(),
- * PRIMARY KEY (`ID`)
- * )
- * ENGINE = InnoDB;
+ * CREATE TABLE IF NOT EXISTS `nhn_academy_15`.`ACCOUNT` ( `ID`            VARCHAR(40)  NOT NULL,
+ * `PASSWORD`      VARCHAR(200) NOT NULL, `SALT`          VARCHAR(45)  NOT NULL, `NAME`
+ * VARCHAR(20)  NOT NULL, `EMAIL`         VARCHAR(100) NOT NULL, `LAST_LOGIN_AT` DATETIME     NULL,
+ * `CREATE_AT`     DATETIME     NOT NULL DEFAULT NOW(), PRIMARY KEY (`ID`) ) ENGINE = InnoDB;
  */
 @Entity
 @Table(name = "ACCOUNT")
@@ -33,6 +25,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Generated
 public class AccountEntity {
+
     @Id
     @Size(min = 5, max = 40)
     private String id;

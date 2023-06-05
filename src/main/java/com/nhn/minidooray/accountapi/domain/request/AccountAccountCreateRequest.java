@@ -10,6 +10,7 @@ import lombok.*;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountCreateRequest {
+
     private String accountId;
     private String accountStateCode;
 }

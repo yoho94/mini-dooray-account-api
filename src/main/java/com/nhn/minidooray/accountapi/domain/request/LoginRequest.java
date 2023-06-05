@@ -10,11 +10,12 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class LoginRequest {
-  @NotEmpty
-  @Size(min = 5, max = 40)
-  private String id;
-  @NotEmpty
-  @Size(min=8,max = 200)
-  private String password;
+
+    @NotEmpty
+    @Size(min = 5, max = 40)
+    private String id;
+    @NotEmpty
+    @Size(min = 8, max = 200)
+    private String password;
 
 }

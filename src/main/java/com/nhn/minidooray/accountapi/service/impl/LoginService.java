@@ -2,24 +2,28 @@ package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.request.LoginRequest;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.exception.LoginFailException;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
-import com.nhn.minidooray.accountapi.service.AccountService;
-import com.nhn.minidooray.accountapi.util.PasswordUtills;
-import java.util.Optional;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 @Service
 @RequiredArgsConstructor
 public class LoginService {
 
-  private final AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
 
-  public Optional<AccountEntity> loginValidate(LoginRequest loginRequest) {
-    Optional<AccountEntity> account = accountRepository.findById(loginRequest.getId());
+    public AccountEntity loginValidate(LoginRequest loginRequest) {
 
-    if (account.get().getPassword().equals(loginRequest.getPassword()));
-    return Optional.of(account.get());
-  }
+        AccountEntity account = accountRepository.findById(loginRequest.getId())
+            .orElseThrow(() -> new LoginFailException(loginRequest.getId()));
+
+        if (!account.getPassword().equals(loginRequest.getPassword())) {
+            throw new LoginFailException(loginRequest.getId());
+        }
+        return account;
+    }
 }

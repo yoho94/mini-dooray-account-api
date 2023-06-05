@@ -22,6 +22,7 @@ public class ResultResponse<T> {
     @Setter
     @Builder
     public static class Header {
+
         private boolean isSuccessful;
         private int resultCode;
         private String resultMessage;

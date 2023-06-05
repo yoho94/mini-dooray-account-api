@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountStateEntity {
+
     @EmbeddedId
     private Pk pk;
     @MapsId("accountId")
@@ -38,6 +39,7 @@ public class AccountAccountStateEntity {
     @Builder
     @Generated
     public static class Pk implements Serializable {
+
         @Size(min = 5, max = 40)
         private String accountId;
         @Size(max = 2)

@@ -17,21 +17,23 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountStateDto {
-  public PkDto pkDto;
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @Builder
-  @Getter
-  @Setter
-  @EqualsAndHashCode
-  @Generated
-  public static class PkDto {
-    public String accountId;
-    public String accountStateCode;
 
-    public LocalDateTime changeAt;
-  }
+    private PkDto pkDto;
 
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    @EqualsAndHashCode
+    @Generated
+    public static class PkDto {
+
+        private String accountId;
+        private String accountStateCode;
+
+        private LocalDateTime changeAt;
+    }
 
 
 }
