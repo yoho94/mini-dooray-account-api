@@ -1,12 +1,8 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
-import com.nhn.minidooray.accountapi.service.AccountService;
-import com.nhn.minidooray.accountapi.service.AccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,8 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AccountAccountStateServiceImpl implements AccountAccountStateService {
   private final AccountAccountStateRepository accountAccountStateRepository;
 
-  private final AccountService accountService;
-  private final AccountStateService accountStateService;
 
   @Override
   public Optional<AccountAccountStateDto> save(AccountAccountStateDto accountAccountStateDto) {

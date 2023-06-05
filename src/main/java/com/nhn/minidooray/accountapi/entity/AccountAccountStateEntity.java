@@ -2,6 +2,7 @@ package com.nhn.minidooray.accountapi.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -39,7 +41,6 @@ private AccountEntity account;
 @ManyToOne
 @JoinColumn(name = "ACCOUNT_STATE_CODE",referencedColumnName = "CODE",nullable = false)
 private AccountStateEntity accountState;
-private LocalDateTime changeAt;
 @Embeddable
 @Getter
 @Setter
@@ -49,10 +50,11 @@ private LocalDateTime changeAt;
 @Builder
 @Generated
 public static class Pk implements Serializable {
-  @Max(40)
+  @Size(min = 5, max = 40)
   private String accountId;
-  @Max(2)
+  @Size(max = 2)
   private String accountStateCode;
+
   private LocalDateTime changeAt;
 }
 

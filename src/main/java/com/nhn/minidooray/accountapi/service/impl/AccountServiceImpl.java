@@ -4,6 +4,7 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
+import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
@@ -16,12 +17,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AccountServiceImpl implements AccountService {
+  @Value("${com.nhn.minidooray.accountapi.validation.find-account}")
+  private String findAccountMessage;
+
   private final AccountRepository accountRepository;
   private final AccountAccountStateService accountAccountStateService;
 
@@ -33,26 +39,16 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   @Transactional
-  public Optional<AccountDto> save(AccountDto accountDto) {
-    Optional<AccountDto>  account=Optional.of(convertToDto(accountRepository.save(convertToEntity(accountDto))));
-    if(account.isEmpty()){
-      return Optional.empty();
-    }
+  public Optional<AccountDto> save(AccountCreateRequest accountCreateRequest) {
+    AccountDto beforeAccountDto=convertAccountCreateRequestToAccountDto(accountCreateRequest);
+    Optional<AccountDto>afterAccountDto=updateStatus(beforeAccountDto,AccountStatus.REGISTERED.getStatusValue());
 
-    Optional<AccountStateDto> accountStateDto = accountStateService.findByCode(AccountStatus.REGISTERED.getStatusValue());
-    if (accountStateDto.isEmpty()) {
-      return Optional.empty();
-    }
-    AccountAccountStateDto.PkDto pkDto = AccountAccountStateDto.PkDto.builder().accountId(account.get().getId()).accountStateCode(accountStateDto.get().getCode()).changeAt(LocalDateTime.now()).build();
-    AccountAccountStateDto accountAccountStateDto = AccountAccountStateDto.builder().pkDto(pkDto).build();
-    accountAccountStateService.save(accountAccountStateDto);
-
-
-    account.get().setAccountAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
-
-    return account;
+    return Optional.of(convertToDto(accountRepository.save(convertToEntity(afterAccountDto.get()))));
   }
 
+  /**
+   * 이 업데이트는 회원 정보를 변경하는 기능입니다.
+   */
   @Override
   public Optional<AccountDto> update(AccountDto accountDto) {
     Optional<AccountEntity> existedAccount=accountRepository.findById(accountDto.getId());
@@ -89,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
   public Optional<AccountDto> findById(String id) {
     Optional<AccountEntity> existedAccount=accountRepository.findById(id);
     if(existedAccount.isEmpty()){
-      return Optional.empty();
+      throw new IllegalStateException(findAccountMessage);
     }
     return existedAccount.map(this::convertToDto);
 
@@ -148,7 +144,8 @@ public class AccountServiceImpl implements AccountService {
         .id(accountEntity.getId())
         .name(accountEntity.getName())
         .email(accountEntity.getEmail())
-        .lastLoginAt(accountEntity.getLastLoginAt())
+        .password(accountEntity.getPassword())
+        .createdAt(accountEntity.getCreateAt())
         .build();
   }
   private AccountEntity convertToEntity(AccountDto accountDto) {
@@ -156,7 +153,16 @@ public class AccountServiceImpl implements AccountService {
         .id(accountDto.getId())
         .name(accountDto.getName())
         .email(accountDto.getEmail())
-        .lastLoginAt(LocalDateTime.now())
+        .password(accountDto.getPassword())
+        .createAt(accountDto.getCreatedAt())
+        .build();
+  }
+  private AccountDto convertAccountCreateRequestToAccountDto(AccountCreateRequest accountCreateRequest) {
+    return AccountDto.builder()
+        .name(accountCreateRequest.getName())
+        .email(accountCreateRequest.getEmail())
+        .password(accountCreateRequest.getPassword())
+        .id(accountCreateRequest.getId())
         .build();
   }
 //  private AccountAccountStateDto convertToAccountAccountStateDto(AccountAccountStateEntity accountAccountStateEntity) {

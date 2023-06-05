@@ -1,0 +1,10 @@
+POST /account-api/account HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "id": "exampleID",
+  "password": "securePassword",
+  "email": "example@email.com",
+  "name": "Example Name"
+}

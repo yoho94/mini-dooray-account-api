@@ -12,16 +12,14 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LoginService {
+
   private final AccountRepository accountRepository;
 
 
   public Optional<AccountEntity> loginValidate(LoginRequest loginRequest) {
     Optional<AccountEntity> account = accountRepository.findById(loginRequest.getId());
 
-    if (account.get().getPassword().equals(PasswordUtills.encode(loginRequest.getPassword())))
-      return Optional.of(account.get());
-
-    return Optional.empty();
+    if (account.get().getPassword().equals(loginRequest.getPassword()));
+    return Optional.of(account.get());
   }
-
 }

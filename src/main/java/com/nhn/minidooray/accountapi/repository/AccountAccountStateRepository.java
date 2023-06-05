@@ -13,5 +13,5 @@ public interface AccountAccountStateRepository extends JpaRepository<AccountAcco
 
   public List<AccountAccountStateEntity> findAllByAccount_Id(String accountId);
 
-  public List<AccountAccountStateEntity> findAllByAccount(List<AccountEntity> accountEntities);
+  public List<AccountAccountStateEntity> findAllByAccountIn(List<AccountEntity> accountEntities);
 }

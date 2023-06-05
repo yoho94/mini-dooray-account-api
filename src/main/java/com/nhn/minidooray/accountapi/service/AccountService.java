@@ -3,6 +3,7 @@ package com.nhn.minidooray.accountapi.service;
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,7 @@ import java.util.Optional;
  */
 
 public interface AccountService {
-  public Optional<AccountDto> save(AccountDto accountDto);
+  public Optional<AccountDto> save(AccountCreateRequest accountCreateRequest);
 
   public Optional<AccountDto> update(AccountDto accountDto);
 

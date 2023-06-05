@@ -1,8 +1,12 @@
 package com.nhn.minidooray.accountapi.controller;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
 import com.nhn.minidooray.accountapi.service.AccountApiService;
+import com.nhn.minidooray.accountapi.service.AccountService;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,14 +24,42 @@ import javax.validation.Valid;
 public class AccountApiController {
 
     private AccountApiService accountApiService;
+    private final AccountService accountService;
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account}")
-    public ResultResponse<Void> createAccount(@RequestBody @Valid AccountCreateRequest accountCreateRequest,
-                                              BindingResult bindingResult) {
-
-
+    public ResultResponse<Void> createAccount(@RequestBody @Valid AccountCreateRequest accountCreateRequest) {
+        accountService.save(accountCreateRequest);
         return ResultResponse.<Void>builder()
+            .header(ResultResponse.Header.builder()
+                .isSuccessful(true)
+                .resultCode(201)
+                .resultMessage("Account successfully created")
+                .build())
+            .build();
+    }
+
+    @GetMapping("/{id}")
+    public ResultResponse<AccountDto> readAccountsByID(@PathVariable("id") String id) {
+        Optional<AccountDto> account = accountService.findById(id);
+
+        if (account.isPresent()) {
+            return ResultResponse.<AccountDto>builder()
+                .header(ResultResponse.Header.builder()
+                    .isSuccessful(true)
+                    .resultCode(200)
+                    .resultMessage("Account found")
+                    .build())
+                .result(Collections.singletonList(account.get()))
                 .build();
+        } else {
+            return ResultResponse.<AccountDto>builder()
+                .header(ResultResponse.Header.builder()
+                    .isSuccessful(false)
+                    .resultCode(404)
+                    .resultMessage("Account not found")
+                    .build())
+                .build();
+        }
     }
 //    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-accounts-by-id}?id={id}")
 //    public ResultResponse<Void> readAccountsByID(@PathVariable("id") String id) {

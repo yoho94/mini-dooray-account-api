@@ -21,9 +21,12 @@ import lombok.ToString;
 @Generated
 public class AccountDto {
   String id;
+  String password;
   String name;
   String email;
   LocalDateTime lastLoginAt;
+  LocalDateTime createdAt;
+  String accountAccountStateCode;
 
 
 
