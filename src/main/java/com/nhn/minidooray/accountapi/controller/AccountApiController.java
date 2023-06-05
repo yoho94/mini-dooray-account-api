@@ -4,6 +4,7 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
 import com.nhn.minidooray.accountapi.service.AccountApiService;
+import com.nhn.minidooray.accountapi.service.AccountDetailService;
 import com.nhn.minidooray.accountapi.service.AccountService;
 import java.util.Collections;
 import java.util.Optional;
@@ -24,11 +25,11 @@ import javax.validation.Valid;
 public class AccountApiController {
 
     private AccountApiService accountApiService;
-    private final AccountService accountService;
+    private final AccountDetailService accountDetailService;
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account}")
     public ResultResponse<Void> createAccount(@RequestBody @Valid AccountCreateRequest accountCreateRequest) {
-        accountService.save(accountCreateRequest);
+        accountDetailService.save(accountCreateRequest);
         return ResultResponse.<Void>builder()
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
@@ -40,7 +41,7 @@ public class AccountApiController {
 
     @GetMapping("/{id}")
     public ResultResponse<AccountDto> readAccountsByID(@PathVariable("id") String id) {
-        Optional<AccountDto> account = accountService.findById(id);
+        Optional<AccountDto> account = accountDetailService.findById(id);
 
         if (account.isPresent()) {
             return ResultResponse.<AccountDto>builder()

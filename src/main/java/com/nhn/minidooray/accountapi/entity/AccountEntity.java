@@ -36,7 +36,7 @@ public class AccountEntity {
     @Id
     @Size(min=5,max = 40)
     private String id;
-    @Size(min = 8, max = 200)
+    @Size(min = 8, max = 60)
     private String password;
     @Size(min=1,max = 20)
     private String name;

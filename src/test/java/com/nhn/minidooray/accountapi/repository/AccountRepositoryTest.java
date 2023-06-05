@@ -81,34 +81,7 @@ class AccountRepositoryTest {
 //    }
     @Test
     void testSave(){
-        AccountStateDto accountStateDto1=AccountStateDto
-            .builder()
-            .code(AccountStatus.REGISTERED.getStatusValue())
-            .name("가입")
-            .createAt(LocalDateTime.now())
-            .build();
-        AccountStateDto accountStateDto2=AccountStateDto
-            .builder()
-            .code(AccountStatus.DEACTIVATED.getStatusValue())
-            .name("탈퇴")
-            .createAt(LocalDateTime.now())
-            .build();
-        AccountStateDto accountStateDto3=AccountStateDto
-            .builder()
-            .code(AccountStatus.DORMANT.getStatusValue())
-            .name("휴면")
-            .createAt(LocalDateTime.now())
-            .build();
-        AccountStateDto accountStateDto4=AccountStateDto
-            .builder()
-            .code(AccountStatus.ACTIVE.getStatusValue())
-            .name("활동")
-            .createAt(LocalDateTime.now())
-            .build();
-        accountStateService.save(accountStateDto1);
-        accountStateService.save(accountStateDto2);
-        accountStateService.save(accountStateDto3);
-        accountStateService.save(accountStateDto4);
+
         AccountCreateRequest accountCreateRequest=AccountCreateRequest
             .builder()
             .id("userId")

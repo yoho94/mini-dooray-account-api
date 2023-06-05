@@ -36,7 +36,12 @@ public class AccountStateServiceImpl implements AccountStateService {
 
   @Override
   public Optional<AccountStateDto> findByCode(String code) {
-    return Optional.empty();
+    Optional<AccountStateDto> existed= accountStateRepository.findById(code).map(this::convertToDto);
+    if(existed.isEmpty()){
+      return Optional.empty();
+    }
+
+    return Optional.of(existed.get());
   }
 
   @Override
