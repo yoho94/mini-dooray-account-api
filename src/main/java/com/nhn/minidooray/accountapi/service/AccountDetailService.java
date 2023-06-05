@@ -12,6 +12,8 @@ public interface AccountDetailService {
 
   public Optional<AccountDto> update(AccountDto accountDto);
   public Optional<AccountDto> updateStatus(AccountDto accountDto,String statusCode);
+  public Optional<AccountDto> updateStatusById(String accountId,String statusCode);
+  public Optional<AccountDto> updateStatusByEmail(String email, String statusCode);
 
   public Optional<AccountDto> findById(String id);
 

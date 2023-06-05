@@ -93,6 +93,22 @@ public class AccountDetailServiceImpl implements AccountDetailService {
     }
 
     @Override
+    @Transactional
+    public Optional<AccountDto> updateStatusById(String accountId, String statusCode) {
+        AccountEntity existedAccount = accountRepository.findById(accountId).orElseThrow(() -> new IllegalStateException(findAccountMessage));
+
+        return updateStatus(convertToDto(existedAccount), statusCode);
+    }
+
+    @Override
+    @Transactional
+    public Optional<AccountDto> updateStatusByEmail(String email, String statusCode) {
+        AccountEntity existedAccount = accountRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException(findAccountMessage));
+
+        return updateStatus(convertToDto(existedAccount), statusCode);
+    }
+
+    @Override
     public Optional<AccountDto> findById(String id) {
         AccountEntity existedAccount = accountRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException(findAccountMessage));

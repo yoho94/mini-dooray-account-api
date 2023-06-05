@@ -106,14 +106,8 @@ public class AccountApiController {
         if (bindingResult.hasErrors()) {
             // TODO thr new ...
         }
+        accountDetailService.updateStatusById(accountCreateRequest.getAccountId(), accountCreateRequest.getAccountStateCode());
 
-        accountAccountStateService.save(AccountAccountStateDto.builder()
-                        .pkDto(AccountAccountStateDto.PkDto.builder()
-                                .accountId(accountCreateRequest.getAccountId())
-                                .accountStateCode(accountCreateRequest.getAccountStateCode())
-                                .changeAt(LocalDateTime.now())
-                                .build())
-                .build());
 
         return ResultResponse.<Void>builder()
                 .header(ResultResponse.Header.builder()
