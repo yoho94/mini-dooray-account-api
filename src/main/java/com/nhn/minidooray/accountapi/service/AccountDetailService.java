@@ -25,4 +25,7 @@ public interface AccountDetailService {
   public void deactivationByEmail(String email);
 
   public void deactivationAllByAccounts(List<AccountDto> accountDtos);
+
+  void updateByLastLoginAt(String id);
+
 }

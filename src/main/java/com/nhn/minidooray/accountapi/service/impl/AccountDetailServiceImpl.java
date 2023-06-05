@@ -83,7 +83,7 @@ public class AccountDetailServiceImpl implements AccountDetailService {
                 .builder()
                 .pkDto(pkDto)
                 .build();
-        accountDto.setAccountAccountStateCode(accountAccountStateDetailDto.getPkDto().getAccountStateDto().getCode());
+        accountDto.setAccountStateCode(accountAccountStateDetailDto.getPkDto().getAccountStateDto().getCode());
         accountAccountStateDetailService.save(accountAccountStateDetailDto);
         return Optional.of(accountDto);
     }
@@ -100,7 +100,7 @@ public class AccountDetailServiceImpl implements AccountDetailService {
         // TODO 못 찾은 경우에는 throw exception을 하고 advice에서 오류상황들 일괄처리
         //      찾은 경우만 return 하니 Optional 불필요
         AccountDto accountDto = convertToDto(existedAccount);
-        accountDto.setAccountAccountStateCode(state.getPk().getAccountStateCode());
+        accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
         accountDto.setAccountAccountStateChangeAt(state.getPk().getChangeAt());
 
         return Optional.of(accountDto);
@@ -118,10 +118,17 @@ public class AccountDetailServiceImpl implements AccountDetailService {
         // TODO 못 찾은 경우에는 throw exception을 하고 advice에서 오류상황들 일괄처리
         //      찾은 경우만 return 하니 Optional 불필요
         AccountDto accountDto = convertToDto(existedAccount);
-        accountDto.setAccountAccountStateCode(state.getPk().getAccountStateCode());
+        accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
         accountDto.setAccountAccountStateChangeAt(state.getPk().getChangeAt());
 
         return Optional.of(accountDto);
+    }
+
+    @Override
+    @Transactional
+    public void updateByLastLoginAt(String id) {
+        AccountEntity accountEntity = accountRepository.findById(id).orElseThrow();
+        accountEntity.setLastLoginAt(LocalDateTime.now());
     }
 
     @Override
@@ -171,6 +178,7 @@ public class AccountDetailServiceImpl implements AccountDetailService {
                 .email(accountEntity.getEmail())
                 .password(accountEntity.getPassword())
                 .createdAt(accountEntity.getCreateAt())
+                .lastLoginAt(accountEntity.getLastLoginAt())
                 .build();
     }
 

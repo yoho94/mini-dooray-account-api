@@ -5,21 +5,20 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
-import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
-import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
+import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,7 +75,7 @@ public class AccountServiceImpl implements AccountService {
         .builder()
         .pkDto(pkDto)
         .build();
-    accountDto.setAccountAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
+    accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
     accountAccountStateService.save(accountAccountStateDto);
     return Optional.of(accountDto);
   }

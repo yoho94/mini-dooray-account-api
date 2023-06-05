@@ -18,6 +18,6 @@ public class AccountDto {
     String email;
     LocalDateTime lastLoginAt;
     LocalDateTime createdAt;
-    String accountAccountStateCode;
+    String accountStateCode;
     private LocalDateTime accountAccountStateChangeAt;
 }

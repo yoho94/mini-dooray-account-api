@@ -86,6 +86,19 @@ public class AccountApiController {
         }
     }
 
+    @GetMapping("/login/{id}")
+    public ResultResponse<Void> updateAccountLastLoginAt(@PathVariable String id) {
+        accountDetailService.updateByLastLoginAt(id);
+
+        return ResultResponse.<Void>builder()
+                .header(ResultResponse.Header.builder()
+                        .isSuccessful(true)
+                        .resultCode(200)
+                        .resultMessage("성공")
+                        .build())
+                .build();
+    }
+
     // TODO bindingResult 에러 처리 및 Valid 처리
     @PostMapping("/status")
     public ResultResponse<Void> createAccountAccountState(@RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
