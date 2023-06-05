@@ -2,7 +2,9 @@ package com.nhn.minidooray.accountapi.service.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateDetailService;
+import com.nhn.minidooray.accountapi.service.AccountDetailService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +19,17 @@ class AccountDetailServiceImplTest {
   @Autowired
   AccountAccountStateDetailService accountAccountStateDetailService;
   @Autowired
-AccountStateService accountStateService;
+  AccountStateService accountStateService;
+
+  @Autowired
+  AccountDetailService accountDetailService;
   @Test
   void save() {
   }
+  @Test
+  void findById() {
+    AccountDto accountDto = accountDetailService.findById("exampleID").get();
+    assertEquals("exampleID", accountDto.getId());
+  }
+
 }

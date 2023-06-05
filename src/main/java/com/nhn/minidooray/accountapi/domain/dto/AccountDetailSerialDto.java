@@ -14,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode
+@Deprecated(since = "삭제 예정")
 @Generated
 public class AccountDetailSerialDto {
   private String id;

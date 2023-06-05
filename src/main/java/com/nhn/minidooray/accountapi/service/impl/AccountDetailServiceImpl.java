@@ -1,6 +1,7 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDetailDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
@@ -10,6 +11,7 @@ import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateDetailService;
+import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountDetailService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class AccountDetailServiceImpl implements AccountDetailService {
 
     private final AccountRepository accountRepository;
     private final AccountAccountStateRepository accountAccountStateRepository;
-    private final AccountAccountStateDetailService accountAccountStateDetailService;
+    private final AccountAccountStateService accountAccountStateService;
 
     private final AccountStateService accountStateService;
 
@@ -47,9 +49,11 @@ public class AccountDetailServiceImpl implements AccountDetailService {
     @Transactional
     public Optional<AccountDto> save(AccountCreateRequest accountCreateRequest) {
         AccountDto beforeAccountDto = convertAccountCreateRequestToAccountDto(accountCreateRequest);
+        // 데이터베이스에 저장되기 직전에 createdAt 추가
+        beforeAccountDto.setCreatedAt(LocalDateTime.now());
+
         Optional<AccountDto> accountDto = Optional.of(convertToDto(accountRepository.save(convertToEntity(beforeAccountDto))));
         Optional<AccountDto> afterAccountDto = updateStatus(accountDto.get(), AccountStatus.REGISTERED.getStatusValue());
-
         return afterAccountDto;
     }
 
@@ -72,19 +76,19 @@ public class AccountDetailServiceImpl implements AccountDetailService {
         if (accountStateDto.isEmpty()) {
             return Optional.empty();
         }
-        AccountAccountStateDetailDto.PkDto pkDto = AccountAccountStateDetailDto.PkDto
+        AccountAccountStateDto.PkDto pkDto = AccountAccountStateDto.PkDto
                 .builder()
-                .accountDto(accountDto)
-                .accountStateDto(accountStateDto.get())
+                .accountId(accountDto.getId())
+                .accountStateCode(accountStateDto.get().getCode())
                 .changeAt(LocalDateTime.now())
                 .build();
 
-        AccountAccountStateDetailDto accountAccountStateDetailDto = AccountAccountStateDetailDto
+        AccountAccountStateDto accountAccountStateDto = AccountAccountStateDto
                 .builder()
                 .pkDto(pkDto)
                 .build();
-        accountDto.setAccountStateCode(accountAccountStateDetailDto.getPkDto().getAccountStateDto().getCode());
-        accountAccountStateDetailService.save(accountAccountStateDetailDto);
+        accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
+        accountAccountStateService.save(accountAccountStateDto);
         return Optional.of(accountDto);
     }
 
@@ -137,8 +141,8 @@ public class AccountDetailServiceImpl implements AccountDetailService {
     }
 
     @Override
-    public void deactivation(AccountAccountStateDetailDto accountAccountStateDetailDto) {
-        accountAccountStateDetailService.save(accountAccountStateDetailDto);
+    public void deactivation(AccountAccountStateDto accountAccountStateDto) {
+        accountAccountStateService.save(accountAccountStateDto);
     }
 
     @Transactional

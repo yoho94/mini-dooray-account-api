@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Deprecated(since = "삭제 예정")
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

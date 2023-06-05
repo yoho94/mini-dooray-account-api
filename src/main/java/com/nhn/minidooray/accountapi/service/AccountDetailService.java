@@ -1,6 +1,7 @@
 package com.nhn.minidooray.accountapi.service;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDetailDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import java.util.List;
@@ -18,7 +19,7 @@ public interface AccountDetailService {
 
   public List<AccountDto> findAll();
 
-  public void deactivation(AccountAccountStateDetailDto accountDto);
+  public void deactivation(AccountAccountStateDto accountDto);
 
   public void deactivationById(String id);
 

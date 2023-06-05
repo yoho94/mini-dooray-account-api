@@ -126,6 +126,7 @@ public class AccountAccountStateDetailServiceImpl implements AccountAccountState
         .email(accountEntity.getEmail())
         .password(accountEntity.getPassword())
         .createdAt(accountEntity.getCreateAt())
+        .lastLoginAt(accountEntity.getLastLoginAt())
         .build();
   }
   private AccountEntity convertToAccountEntity(AccountDto accountDto) {
@@ -135,6 +136,7 @@ public class AccountAccountStateDetailServiceImpl implements AccountAccountState
         .email(accountDto.getEmail())
         .password(accountDto.getPassword())
         .createAt(accountDto.getCreatedAt())
+        .lastLoginAt(accountDto.getLastLoginAt())
         .build();
   }
   private AccountStateDto convertToAccountStateDto(AccountStateEntity accountStateEntity) {
