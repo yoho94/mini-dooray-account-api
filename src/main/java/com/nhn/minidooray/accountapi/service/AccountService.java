@@ -15,6 +15,8 @@ public interface AccountService {
 
   public Optional<AccountDto> update(AccountDto accountDto);
 
+  public Optional<AccountDto> updateStatus(AccountDto accountDto,String statusCode);
+
   public Optional<AccountDto> findById(String id);
 
   public Optional<AccountDto> findByEmail(String email);

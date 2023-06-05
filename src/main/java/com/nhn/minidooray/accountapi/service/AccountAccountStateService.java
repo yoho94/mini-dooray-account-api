@@ -1,6 +1,7 @@
 package com.nhn.minidooray.accountapi.service;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
+import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,5 +36,6 @@ public interface AccountAccountStateService {
    */
   @Deprecated(since = "일반적인 경우에 삭제 하지 않습니다.", forRemoval = true)
   public void deleteAllByAccountStateCode(String accountStateCode);
+
 
 }
