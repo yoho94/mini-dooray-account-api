@@ -1,23 +1,21 @@
 package com.nhn.minidooray.accountapi.controller;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
+import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountApiService;
 import com.nhn.minidooray.accountapi.service.AccountDetailService;
-import com.nhn.minidooray.accountapi.service.AccountService;
-import java.util.Collections;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,17 +24,18 @@ public class AccountApiController {
 
     private AccountApiService accountApiService;
     private final AccountDetailService accountDetailService;
+    private final AccountAccountStateService accountAccountStateService;
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account}")
     public ResultResponse<Void> createAccount(@RequestBody @Valid AccountCreateRequest accountCreateRequest) {
         accountDetailService.save(accountCreateRequest);
         return ResultResponse.<Void>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(201)
-                .resultMessage("Account successfully created")
-                .build())
-            .build();
+                .header(ResultResponse.Header.builder()
+                        .isSuccessful(true)
+                        .resultCode(201)
+                        .resultMessage("Account successfully created")
+                        .build())
+                .build();
     }
 
     @GetMapping("/{id}")
@@ -45,22 +44,71 @@ public class AccountApiController {
 
         if (account.isPresent()) {
             return ResultResponse.<AccountDto>builder()
-                .header(ResultResponse.Header.builder()
-                    .isSuccessful(true)
-                    .resultCode(200)
-                    .resultMessage("Account found")
-                    .build())
-                .result(Collections.singletonList(account.get()))
-                .build();
+                    .header(ResultResponse.Header.builder()
+                            .isSuccessful(true)
+                            .resultCode(200)
+                            .resultMessage("Account found")
+                            .build())
+                    .result(Collections.singletonList(account.get()))
+                    .build();
         } else {
             return ResultResponse.<AccountDto>builder()
-                .header(ResultResponse.Header.builder()
-                    .isSuccessful(false)
-                    .resultCode(404)
-                    .resultMessage("Account not found")
-                    .build())
-                .build();
+                    .header(ResultResponse.Header.builder()
+                            .isSuccessful(false)
+                            .resultCode(404)
+                            .resultMessage("Account not found")
+                            .build())
+                    .build();
         }
+    }
+
+    @GetMapping("/email/{email}")
+    public ResultResponse<AccountDto> readAccountsByEmail(@PathVariable("email") String email) {
+        Optional<AccountDto> account = accountDetailService.findByEmail(email);
+
+        if (account.isPresent()) {
+            return ResultResponse.<AccountDto>builder()
+                    .header(ResultResponse.Header.builder()
+                            .isSuccessful(true)
+                            .resultCode(200)
+                            .resultMessage("Account found")
+                            .build())
+                    .result(Collections.singletonList(account.get()))
+                    .build();
+        } else {
+            return ResultResponse.<AccountDto>builder()
+                    .header(ResultResponse.Header.builder()
+                            .isSuccessful(false)
+                            .resultCode(404)
+                            .resultMessage("Account not found")
+                            .build())
+                    .build();
+        }
+    }
+
+    // TODO bindingResult 에러 처리 및 Valid 처리
+    @PostMapping("/status")
+    public ResultResponse<Void> createAccountAccountState(@RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
+                                                          BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // TODO thr new ...
+        }
+
+        accountAccountStateService.save(AccountAccountStateDto.builder()
+                        .pkDto(AccountAccountStateDto.PkDto.builder()
+                                .accountId(accountCreateRequest.getAccountId())
+                                .accountStateCode(accountCreateRequest.getAccountStateCode())
+                                .changeAt(LocalDateTime.now())
+                                .build())
+                .build());
+
+        return ResultResponse.<Void>builder()
+                .header(ResultResponse.Header.builder()
+                        .isSuccessful(true)
+                        .resultCode(201)
+                        .resultMessage("성공")
+                        .build())
+                .build();
     }
 //    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-accounts-by-id}?id={id}")
 //    public ResultResponse<Void> readAccountsByID(@PathVariable("id") String id) {

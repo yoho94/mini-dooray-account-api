@@ -8,3 +8,23 @@ Content-Type: application/json
   "email": "example@email.com",
   "name": "Example Name"
 }
+
+### GET id
+GET /account-api/exampleID HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### GET email
+GET /account-api/email/example@email.com HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### CREATE status
+POST /account-api/status HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "accountId": "exampleID",
+  "accountStateCode": "03"
+}
