@@ -5,6 +5,8 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
+import com.nhn.minidooray.accountapi.domain.request.ModifyAccountNameRequest;
+import com.nhn.minidooray.accountapi.domain.request.ModifyAccountPasswordRequest;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
@@ -17,7 +19,6 @@ import com.nhn.minidooray.accountapi.service.AccountService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,10 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
-
-    @Value("${com.nhn.minidooray.accountapi.validation.find-account}")
-    private String findAccountMessage;
-
     private final AccountRepository accountRepository;
     private final AccountAccountStateRepository accountAccountStateRepository;
     private final AccountAccountStateService accountAccountStateService;
@@ -73,7 +70,41 @@ public class AccountServiceImpl implements AccountService {
         }
         throw new IllegalStateException("");
     }
+    @Override
+    public AccountDto updateNameById(ModifyAccountNameRequest modifyAccountNameRequest) {
+        AccountEntity existedAccount = accountRepository.findById(modifyAccountNameRequest.getIdOrEmail())
+            .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
+        existedAccount.setName(modifyAccountNameRequest.getName());
 
+        return convertToDto(accountRepository.save(existedAccount));
+
+    }
+
+    @Override
+    public AccountDto updateNameByEmail(ModifyAccountNameRequest modifyAccountNameRequest) {
+        AccountEntity existedAccount = accountRepository.findByEmail(modifyAccountNameRequest.getIdOrEmail())
+            .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
+        existedAccount.setName(modifyAccountNameRequest.getName());
+
+        return convertToDto(accountRepository.save(existedAccount));
+
+    }
+    @Override
+    public AccountDto updatePasswordById(ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
+        AccountEntity existedAccount = accountRepository.findById(modifyAccountPasswordRequest.getIdOrEmail())
+            .orElseThrow(() -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+        existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
+
+        return convertToDto(accountRepository.save(existedAccount));
+    }
+    @Override
+    public AccountDto updatePasswordByEmail(ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
+        AccountEntity existedAccount = accountRepository.findByEmail(
+                modifyAccountPasswordRequest.getIdOrEmail())
+            .orElseThrow(() -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+        existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
+        return convertToDto(accountRepository.save(existedAccount));
+    }
     @Override
     @Transactional
     public AccountDto updateStatus(AccountDto accountDto, String statusCode) {

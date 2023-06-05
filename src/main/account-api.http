@@ -3,14 +3,14 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "id": "exampleID3",
-  "password": "securePassword2",
-  "email": "example@email.com",
+  "id": "exampleID",
+  "password": "securePassword",
+  "email": "example2@email.com",
   "name": "Example Name"
 }
 
 ### GET id
-GET /account-api/exampaleID HTTP/1.1
+GET /account-api/exampleID HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -19,16 +19,70 @@ GET /account-api/email/example@email.com HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-### CREATE status
-POST /account-api/status HTTP/1.1
+### CREATE STATUS BY ID
+POST /account-api/create/status/id HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
 {
-  "accountId": "exampleID",
+  "idOrEmail": "exampleID",
   "accountStateCode": "03"
 }
 
+### CREATE STATUS BY EMAIL
+POST /account-api/create/status/email HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "example@email.com",
+  "accountStateCode": "03"
+}
 ### LOGIN
 GET /account-api/login/exampleID HTTP/1.1
 Host: localhost:8080
+
+### UPDATE NAME BY ID
+PUT /account-api/update/name/id HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "exampleID",
+  "name": "UpdatedById Name"
+}
+
+### UPDATE NAME BY EMAIL
+PUT /account-api/update/name/email HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "example@email.com",
+  "name": "UpdatedByEmail Name"
+}
+
+### UPDATE PASSWORD BY ID
+PUT /account-api/update/password/id HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "exampleID",
+  "password": "updatedByIdPassword"
+}
+
+### UPDATE PASSWORD BY EMAIL
+PUT /account-api/update/password/email HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "example@email.com",
+  "password": "updatedByEmailPassword"
+}
+
+### GET ACCOUNTS
+GET /account-api/accounts HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
