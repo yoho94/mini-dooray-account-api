@@ -25,12 +25,15 @@ public class AccountStateServiceImpl implements AccountStateService {
 
             throw new DataAlreadyExistsException(accountStateCreateRequest.getCode());
         }
-        return convertToDto(accountStateRepository.save(convertToEntity(convertToDto(accountStateCreateRequest))));
+        return convertToDto(
+            accountStateRepository.save(convertToEntity(convertToDto(accountStateCreateRequest))));
     }
 
     @Override
     public AccountStateDto update(AccountStateCreateRequest accountStateCreateRequest) {
-        AccountStateEntity entity=accountStateRepository.findById(accountStateCreateRequest.getCode()).orElseThrow(() -> new DataNotFoundException(accountStateCreateRequest.getCode()));
+        AccountStateEntity entity = accountStateRepository.findById(
+                accountStateCreateRequest.getCode())
+            .orElseThrow(() -> new DataNotFoundException(accountStateCreateRequest.getCode()));
         entity.setName(accountStateCreateRequest.getName());
         entity.setCreateAt(LocalDateTime.now());
         return convertToDto(accountStateRepository.save(entity));
@@ -80,6 +83,7 @@ public class AccountStateServiceImpl implements AccountStateService {
             .createAt(accountStateEntity.getCreateAt())
             .build();
     }
+
     private AccountStateDto convertToDto(AccountStateCreateRequest accountStateCreateRequest) {
         return AccountStateDto.builder()
             .code(accountStateCreateRequest.getCode())
@@ -87,6 +91,7 @@ public class AccountStateServiceImpl implements AccountStateService {
             .createAt(LocalDateTime.now())
             .build();
     }
+
     private AccountStateEntity convertToEntity(AccountStateDto accountStateDto) {
         return AccountStateEntity.builder()
             .code(accountStateDto.getCode())

@@ -40,7 +40,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountStateService accountStateService;
 
     /**
-     * save시 반드시 accountDto에 .setAccountStateCode를 넣어주어야함.
+     * TODO ACCOUNT SAVE시 EMAIL 패턴 검사 해야함..
      */
 
     @Override

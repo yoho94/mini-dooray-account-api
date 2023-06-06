@@ -20,7 +20,7 @@ public interface AccountAccountStateService {
     void delete(AccountAccountStateDto accountAccountStateDto);
 
 
-    void deleteByAccountIdAndAccountStateCode(String accountId, String accountStateCode);
+    void deleteAllByAccountIdAndAccountStateCode(String accountId, String accountStateCode);
 
 
     void deleteAllByAccountId(String accountId);

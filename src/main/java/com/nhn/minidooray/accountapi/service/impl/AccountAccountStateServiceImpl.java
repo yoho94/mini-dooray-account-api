@@ -3,7 +3,6 @@ package com.nhn.minidooray.accountapi.service.impl;
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
-import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
 import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
@@ -33,11 +32,11 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
             accountRepository.getReferenceById(accountAccountStateDto.getPkDto().getAccountId()));
         entity.setAccountState(accountStateRepository.getReferenceById(
             accountAccountStateDto.getPkDto().getAccountStateCode()));
-        if(entity.getAccountState() == null) {
+        if (entity.getAccountState() == null) {
             throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
                 .getAccountStateCode());
         }
-        if(entity.getAccount() == null) {
+        if (entity.getAccount() == null) {
             throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
                 .getAccountId());
         }
@@ -95,7 +94,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
     }
 
     @Override
-    public void deleteByAccountIdAndAccountStateCode(String accountId, String accountStateCode) {
+    public void deleteAllByAccountIdAndAccountStateCode(String accountId, String accountStateCode) {
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_IdAndAccountState_Code(
             accountId, accountStateCode);
         if (existed.isEmpty()) {

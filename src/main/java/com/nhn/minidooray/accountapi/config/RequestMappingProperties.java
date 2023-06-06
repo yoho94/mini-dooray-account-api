@@ -27,6 +27,7 @@ public class RequestMappingProperties {
     private String createAccountStateByEmail;
 
     // ACCOUNT STATE SERVICE
+    // TODO 변수명 수정해야할듯
     private String createState;
 
     private String updateState;
@@ -36,4 +37,19 @@ public class RequestMappingProperties {
 
     private String deleteStateByCode;
     private String deleteAllState;
+
+    // ACCOUNT ACCOUNT STATE SERVICE
+
+    private String createAccountAccountState;
+    private String readAccountAccountStateListByAccountIdAndAccountStateCode;
+
+    private String readAccountAccountStateList;
+
+    private String readAccountAccountStateListByAccountStateCode;
+
+    private String deleteAccountAccountStateListByAccountIdAndAccountStateCode;
+
+    private String deleteAccountAccountStateListByAccountId;
+
+    private String deleteAccountAccountStateListByAccountStateCode;
 }
