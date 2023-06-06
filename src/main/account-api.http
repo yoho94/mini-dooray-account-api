@@ -10,12 +10,12 @@ Content-Type: application/json
 }
 
 ### GET id
-GET /account-api/exampleID HTTP/1.1
+GET /account-api/accounts/id/exampleID HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
 ### GET email
-GET /account-api/email/example@email.com HTTP/1.1
+GET /account-api/accounts/email/example@email.com HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -39,7 +39,7 @@ Content-Type: application/json
   "accountStateCode": "03"
 }
 ### LOGIN
-GET /account-api/login/exampleID HTTP/1.1
+GET /account-api/login/exampleID/state HTTP/1.1
 Host: localhost:8080
 
 ### UPDATE NAME BY ID
@@ -86,3 +86,15 @@ Content-Type: application/json
 GET /account-api/accounts HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
+
+### DEACT ACCOUNT BY ID
+GET /account-api/deact/id/exampleId/state HTTP/1.1
+Host: localhost:8080
+
+### DEACT ACCOUNT BY EMAIL
+GET /account-api/deact/email/example@email.com/state HTTP/1.1
+Host: localhost:8080
+
+### DEACT ACCOUNT ALL
+GET /account-api/deact/all/state HTTP/1.1
+Host: localhost:8080

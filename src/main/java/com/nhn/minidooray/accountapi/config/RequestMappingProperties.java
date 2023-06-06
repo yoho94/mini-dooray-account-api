@@ -25,7 +25,4 @@ public class RequestMappingProperties {
     private String deactAccountsByAll;
     private String createAccountStateById;
     private String createAccountStateByEmail;
-    private String readAccountStateCurrent;
-    private String readAccountStateList;
-    private String idCheck;
 }

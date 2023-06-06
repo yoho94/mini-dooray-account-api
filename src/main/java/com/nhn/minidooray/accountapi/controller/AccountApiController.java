@@ -107,7 +107,7 @@ public class AccountApiController {
 
     // createAccountAccountState -> updateAccountAccountStateById
     // PostMapping("/status ") -> PostMapping("/create/status/id")
-    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-id}")
+  @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-id}")
     public ResultResponse<Void> createAccountAccountStateById(
         @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
         BindingResult bindingResult) {
@@ -126,7 +126,7 @@ public class AccountApiController {
             .build();
     }
 
-    @PostMapping("com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-email")
+    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-email}")
     public ResultResponse<Void> createAccountAccountStateByEmail(
         @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
         BindingResult bindingResult) {

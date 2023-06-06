@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AccountServiceImpl implements AccountService {
+
     private final AccountRepository accountRepository;
     private final AccountAccountStateRepository accountAccountStateRepository;
     private final AccountAccountStateService accountAccountStateService;
@@ -52,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsById(accountCreateRequest.getId())) {
             throw new DataAlreadyExistsException(accountCreateRequest.getId());
         }
-        if(accountRepository.existsByEmail(accountCreateRequest.getEmail())) {
+        if (accountRepository.existsByEmail(accountCreateRequest.getEmail())) {
             throw new DataAlreadyExistsException(accountCreateRequest.getEmail());
         }
 
@@ -71,9 +72,11 @@ public class AccountServiceImpl implements AccountService {
         }
         throw new IllegalStateException("");
     }
+
     @Override
     public AccountDto updateNameById(ModifyAccountNameRequest modifyAccountNameRequest) {
-        AccountEntity existedAccount = accountRepository.findById(modifyAccountNameRequest.getIdOrEmail())
+        AccountEntity existedAccount = accountRepository.findById(
+                modifyAccountNameRequest.getIdOrEmail())
             .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
         existedAccount.setName(modifyAccountNameRequest.getName());
 
@@ -83,29 +86,38 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto updateNameByEmail(ModifyAccountNameRequest modifyAccountNameRequest) {
-        AccountEntity existedAccount = accountRepository.findByEmail(modifyAccountNameRequest.getIdOrEmail())
+        AccountEntity existedAccount = accountRepository.findByEmail(
+                modifyAccountNameRequest.getIdOrEmail())
             .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
         existedAccount.setName(modifyAccountNameRequest.getName());
 
         return convertToDto(accountRepository.save(existedAccount));
 
     }
+
     @Override
-    public AccountDto updatePasswordById(ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
-        AccountEntity existedAccount = accountRepository.findById(modifyAccountPasswordRequest.getIdOrEmail())
-            .orElseThrow(() -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+    public AccountDto updatePasswordById(
+        ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
+        AccountEntity existedAccount = accountRepository.findById(
+                modifyAccountPasswordRequest.getIdOrEmail())
+            .orElseThrow(
+                () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
         existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
 
         return convertToDto(accountRepository.save(existedAccount));
     }
+
     @Override
-    public AccountDto updatePasswordByEmail(ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
+    public AccountDto updatePasswordByEmail(
+        ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
         AccountEntity existedAccount = accountRepository.findByEmail(
                 modifyAccountPasswordRequest.getIdOrEmail())
-            .orElseThrow(() -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+            .orElseThrow(
+                () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
         existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
         return convertToDto(accountRepository.save(existedAccount));
     }
+
     @Override
     @Transactional
     public AccountDto updateStatus(AccountDto accountDto, String statusCode) {
@@ -187,10 +199,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<AccountDto> findAll() {
-        return accountRepository.findAll().stream().map(this::convertToDto)
+        return accountRepository.findAll().stream()
+            .map(accountEntity -> {
+                AccountDto accountDto = convertToDto(accountEntity);
+
+                AccountAccountStateEntity stateEntity = accountAccountStateRepository
+                    .findTopByAccount_IdOrderByPk_ChangeAtDesc(accountEntity.getId())
+                    .orElseThrow(() -> new RecentStateException(accountEntity.getId()));
+
+                accountDto.setAccountStateCode(stateEntity.getPk().getAccountStateCode());
+                accountDto.setAccountAccountStateChangeAt(stateEntity.getPk().getChangeAt());
+
+                return accountDto;
+            })
             .collect(Collectors.toList());
     }
 
+    //TODO DEACT 할때 이미 해당하는 상태이면 저장되지 않도록 구현해야함.
     @Override
     public void deactivation(AccountAccountStateDto accountAccountStateDto) {
         accountAccountStateService.save(accountAccountStateDto);
@@ -210,10 +235,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void deactivationByEmail(String email) {
         AccountDto accountDto = accountRepository.findByEmail(email).map(this::convertToDto)
-            .orElse(null);
-        if (accountDto == null) {
-            return;
-        }
+            .orElseThrow(() -> new DataNotFoundException(email));
+
         deactivationById(accountDto.getId());
     }
 
