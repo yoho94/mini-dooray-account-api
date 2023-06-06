@@ -21,43 +21,52 @@ public class AccountStateServiceImpl implements AccountStateService {
 
     @Override
     public AccountStateDto save(AccountStateCreateRequest accountStateCreateRequest) {
-        if (accountStateRepository.existsById(accountStateCreateRequest.getCode())) {
-
-            throw new DataAlreadyExistsException(accountStateCreateRequest.getCode());
+        String code = accountStateCreateRequest.getCode();
+        if (accountStateRepository.existsById(code)) {
+            throw new DataAlreadyExistsException(code);
         }
-        return convertToDto(
-            accountStateRepository.save(convertToEntity(convertToDto(accountStateCreateRequest))));
-    }
 
-    @Override
-    public AccountStateDto update(AccountStateCreateRequest accountStateCreateRequest) {
-        AccountStateEntity entity = accountStateRepository.findById(
-                accountStateCreateRequest.getCode())
-            .orElseThrow(() -> new DataNotFoundException(accountStateCreateRequest.getCode()));
-        entity.setName(accountStateCreateRequest.getName());
-        entity.setCreateAt(LocalDateTime.now());
+        AccountStateDto dto = convertToDto(accountStateCreateRequest);
+        AccountStateEntity entity = convertToEntity(dto);
+
         return convertToDto(accountStateRepository.save(entity));
     }
 
     @Override
+    public AccountStateDto update(AccountStateCreateRequest accountStateCreateRequest) {
+        String code = accountStateCreateRequest.getCode();
+
+        AccountStateEntity entity = getAccountStateEntityByCode(code);
+
+        entity.setName(accountStateCreateRequest.getName());
+        entity.setCreateAt(LocalDateTime.now());
+
+        AccountStateEntity updatedEntity = accountStateRepository.save(entity);
+        return convertToDto(updatedEntity);
+    }
+
+    @Override
     public List<AccountStateDto> findAll() {
-        return accountStateRepository.findAll().stream().map(this::convertToDto)
+        return accountStateRepository
+            .findAll()
+            .stream()
+            .map(this::convertToDto)
             .collect(Collectors.toList());
     }
 
     @Override
     public AccountStateDto findByCode(String code) {
+        AccountStateEntity entity = getAccountStateEntityByCode(code);
 
-        return accountStateRepository.findById(code).map(this::convertToDto)
-            .orElseThrow(() -> new DataNotFoundException(code));
-
+        return convertToDto(entity);
     }
 
     @Override
     public void delete(AccountStateDto accountStateDto) {
-        if (!accountStateRepository.existsById(accountStateDto.getCode())) {
-            throw new DataNotFoundException(accountStateDto.getCode(), accountStateDto.getName());
+        String code =accountStateDto.getCode();
 
+        if (!accountStateRepository.existsById(code)) {
+            throw new DataNotFoundException(code, accountStateDto.getName());
         }
         accountStateRepository.delete(convertToEntity(accountStateDto));
 
@@ -67,17 +76,18 @@ public class AccountStateServiceImpl implements AccountStateService {
     public void deleteByCode(String code) {
         if (!accountStateRepository.existsById(code)) {
             throw new DataNotFoundException(code);
-
         }
         accountStateRepository.deleteById(code);
-
-
-
     }
 
     @Override
     public void deleteAll() {
         accountStateRepository.deleteAll();
+    }
+
+    private AccountStateEntity getAccountStateEntityByCode(String code) {
+        return accountStateRepository.findById(code)
+            .orElseThrow(() -> new DataNotFoundException(code));
     }
 
     private AccountStateDto convertToDto(AccountStateEntity accountStateEntity) {
