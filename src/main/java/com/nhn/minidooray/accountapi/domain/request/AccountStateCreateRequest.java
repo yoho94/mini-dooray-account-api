@@ -19,10 +19,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 @Generated
 public class AccountStateCreateRequest {
+
     @NotEmpty
-    @Size(max=2)
+    @Size(max = 2)
     private String code;
     @NotEmpty
-    @Size(min=1,max=45)
+    @Size(min = 1, max = 45)
     private String name;
 }

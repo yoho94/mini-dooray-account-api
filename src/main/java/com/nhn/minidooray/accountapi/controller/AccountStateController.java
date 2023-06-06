@@ -81,7 +81,7 @@ public class AccountStateController {
                     .resultMessage("Account state list found").build())
             .result(Collections.singletonList(accountStateDtoList)).build();
     }
-
+    // TODO AccountState 삭제시 존재하지 않는 데이터라고 나옴. 근데 삭제는 되어있음.
     @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.delete-state-by-code}")
     public ResultResponse<Void> deleteAccountStateByCode(@PathVariable("code") String code) {
         accountStateService.deleteByCode(code);

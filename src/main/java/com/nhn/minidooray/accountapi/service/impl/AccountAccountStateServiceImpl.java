@@ -44,7 +44,6 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         entity.setAccountState(accountStateRepository.getReferenceById(
             accountAccountCreateRequest.getAccountStateCode()));
 
-
         if (entity.getAccountState() == null) {
             throw new ReferencedColumnException(accountAccountCreateRequest.
                 getAccountStateCode());
@@ -53,7 +52,6 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
             throw new ReferencedColumnException(accountAccountCreateRequest
                 .getIdOrEmail());
         }
-
 
         return convertToDto(accountAccountStateRepository.save(entity));
     }
@@ -144,7 +142,9 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         return AccountAccountStateDto.builder()
             .pkDto(convertToPkDto(accountAccountStateEntity.getPk())).build();
     }
-    private AccountAccountStateDto convertToDto(AccountAccountCreateRequest accountAccountCreateRequest) {
+
+    private AccountAccountStateDto convertToDto(
+        AccountAccountCreateRequest accountAccountCreateRequest) {
         return AccountAccountStateDto.builder()
             .pkDto(AccountAccountStateDto.PkDto.builder()
                 .accountId(accountAccountCreateRequest.getIdOrEmail())
@@ -153,6 +153,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
                 .build())
             .build();
     }
+
     private AccountAccountStateEntity convertToEntity(
         AccountAccountStateDto accountAccountStateDto) {
         return AccountAccountStateEntity.builder()

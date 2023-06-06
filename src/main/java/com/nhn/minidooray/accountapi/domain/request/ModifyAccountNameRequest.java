@@ -18,10 +18,11 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Generated
 public class ModifyAccountNameRequest {
+
     @NotEmpty
-    @Size(min=5, max=100)
-    private  String idOrEmail;
-    private  String name;
+    @Size(min = 5, max = 100)
+    private String idOrEmail;
+    private String name;
 
 
 }

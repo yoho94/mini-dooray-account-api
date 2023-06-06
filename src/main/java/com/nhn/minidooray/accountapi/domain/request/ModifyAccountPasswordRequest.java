@@ -14,6 +14,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Generated
 public class ModifyAccountPasswordRequest {
+
     private String idOrEmail;
     private String password;
 

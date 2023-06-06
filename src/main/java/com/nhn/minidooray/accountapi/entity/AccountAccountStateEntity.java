@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountStateEntity {
-
+// TODO 로컬db에 생성시 id와 code 데이터 크기가 255로 생기는 문제 있음.
     @EmbeddedId
     private Pk pk;
     @MapsId("accountId")

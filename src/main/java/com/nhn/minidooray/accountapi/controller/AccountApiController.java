@@ -187,6 +187,7 @@ public class AccountApiController {
 
     /**
      * TODO totalCount가 항상 1이 나오는 문제있음.
+     * TODO ACCOUT ACCOUNT STATE 삭제시 데이터 무결성이 깨지는것 같음 findAll이 안됌
      */
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-list}")
     public ResultResponse<List<AccountDto>> readAccounts() {
@@ -216,6 +217,7 @@ public class AccountApiController {
                 .resultMessage("Account deactivated").build()).build();
     }
 
+    // TODO ACCOUT ACCOUNT STATE 삭제시 데이터 무결성이 깨지는것 같음
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-accounts-by-all}")
     public ResultResponse<Void> deactivationAllAccountByList() {
         List<AccountDto> accounts = accountService.findAll();

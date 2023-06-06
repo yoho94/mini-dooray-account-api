@@ -12,11 +12,12 @@ import lombok.*;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountCreateRequest {
-// accountId -> idOrEmail
+
+    // accountId -> idOrEmail
     @NotEmpty
-    @Size(min=5,max=100)
+    @Size(min = 5, max = 100)
     private String idOrEmail;
     @NotEmpty
-    @Size(max=2)
+    @Size(max = 2)
     private String accountStateCode;
 }
