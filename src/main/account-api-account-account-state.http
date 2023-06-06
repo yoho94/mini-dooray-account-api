@@ -1,0 +1,11 @@
+### CREATE ACCOUNT ACCOUNT STATE
+POST /account-account-state/create
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "idOrEmail": "",
+  "name": ""
+}
+
+

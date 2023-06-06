@@ -1,5 +1,5 @@
 ### CREATE ACCOUNT_STATE
-POST /account-api/state HTTP/1.1
+POST /account-api/state/create HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -14,21 +14,21 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-    "code": "05",
+  "code": "05",
   "name": "수정된 STATE_NAME, 삭제해주세요"
 }
 
 ### READ ACCOUNT_STATE BY CODE
-GET /account-api/states/05 HTTP/1.1
+GET /account-api/state/05 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
 ### READ ALL ACCOUNT_STATE
-GET /account-api/states HTTP/1.1
+GET /account-api/state/list HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
 ### DELTE ACCOUNT_STATE BY CODE
-DELETE /account-api/states/delete/05 HTTP/1.1
+DELETE /account-api/state/delete/05 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json

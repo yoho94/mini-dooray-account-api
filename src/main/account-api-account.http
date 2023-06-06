@@ -1,4 +1,5 @@
-POST /account-api/account HTTP/1.1
+### CREATE ACCOUNT
+POST /account-api/account/create HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -9,18 +10,23 @@ Content-Type: application/json
   "name": "Example Name3"
 }
 
-### GET id
-GET /account-api/accounts/id/exampleID HTTP/1.1
+### READ ACCOUNT BY ID
+GET /account-api/account/id/exampleID HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-### GET email
-GET /account-api/accounts/email/example@email.com HTTP/1.1
+### READ ACCOUNT BY EMAIL
+GET /account-api/account/email/example@email.com HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### READ ACCOUNT ALL
+GET /account-api/account/list HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
 ### CREATE STATUS BY ID
-POST /account-api/create/status/id HTTP/1.1
+POST /account-api/account/create/state/id HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -30,7 +36,7 @@ Content-Type: application/json
 }
 
 ### CREATE STATUS BY EMAIL
-POST /account-api/create/status/email HTTP/1.1
+POST /account-api/account/create/state/email HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -43,7 +49,7 @@ GET /account-api/login/exampleID/state HTTP/1.1
 Host: localhost:8080
 
 ### UPDATE NAME BY ID
-PUT /account-api/update/name/id HTTP/1.1
+PUT /account-api/account/update/name/id HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -53,7 +59,7 @@ Content-Type: application/json
 }
 
 ### UPDATE NAME BY EMAIL
-PUT /account-api/update/name/email HTTP/1.1
+PUT /account-api/account/update/name/email HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -63,7 +69,7 @@ Content-Type: application/json
 }
 
 ### UPDATE PASSWORD BY ID
-PUT /account-api/update/password/id HTTP/1.1
+PUT /account-api/account/update/password/id HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -73,7 +79,7 @@ Content-Type: application/json
 }
 
 ### UPDATE PASSWORD BY EMAIL
-PUT /account-api/update/password/email HTTP/1.1
+PUT /account-api/account/update/password/email HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -82,19 +88,15 @@ Content-Type: application/json
   "password": "updatedByEmailPassword"
 }
 
-### GET ACCOUNTS
-GET /account-api/accounts HTTP/1.1
-Host: localhost:8080
-Content-Type: application/json
 
 ### DEACT ACCOUNT BY ID
-GET /account-api/deact/id/exampleId/state HTTP/1.1
+GET /account-api/account/deact/id/exampleID HTTP/1.1
 Host: localhost:8080
 
 ### DEACT ACCOUNT BY EMAIL
-GET /account-api/deact/email/example@email.com/state HTTP/1.1
+GET /account-api/account/deact/email/example@email.com HTTP/1.1
 Host: localhost:8080
 
 ### DEACT ACCOUNT ALL
-GET /account-api/deact/all/state HTTP/1.1
+GET /account-api/account/deact/all HTTP/1.1
 Host: localhost:8080
