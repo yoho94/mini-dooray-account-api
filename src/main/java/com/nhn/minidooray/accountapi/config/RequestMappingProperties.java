@@ -12,13 +12,20 @@ public class RequestMappingProperties {
     private String prefix;
 
     private String createAccount;
-    private String readAccount;
+    private String readAccountById;
+    private String readAccountByEmail;
     private String readAccountList;
     private String updateAccount;
-    private String deleteAccount;
-    private String createAccountState;
+    private String updateAccountNameById;
+    private String updateAccountNameByEmail;
+    private String updateAccountPasswordById;
+    private String updateAccountPasswordByEmail;
+    private String deactAccountByIdAccount;
+    private String deactAccountByEmailAccount;
+    private String deactAccountsByAll;
+    private String createAccountStateById;
+    private String createAccountStateByEmail;
     private String readAccountStateCurrent;
     private String readAccountStateList;
-
     private String idCheck;
 }

@@ -1,11 +1,13 @@
 package com.nhn.minidooray.accountapi.controller;
 
+import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.ModifyAccountNameRequest;
 import com.nhn.minidooray.accountapi.domain.request.ModifyAccountPasswordRequest;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
+import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.exception.ApiException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
 import com.nhn.minidooray.accountapi.exception.ValidationFailedException;
@@ -49,7 +51,7 @@ public class AccountApiController {
             .build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-by-id}")
     public ResultResponse<AccountDto> readAccountByID(@PathVariable("id") String id) {
         AccountDto account;
 
@@ -70,8 +72,8 @@ public class AccountApiController {
 
     }
 
-    @GetMapping("/email/{email}")
-    public ResultResponse<AccountDto> readAccountsByEmail(@PathVariable("email") String email) {
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-by-email}")
+    public ResultResponse<AccountDto> readAccountByEmail(@PathVariable("email") String email) {
         AccountDto account;
 
         try {
@@ -90,7 +92,7 @@ public class AccountApiController {
             .build();
     }
 
-    @GetMapping("/login/{id}")
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account}")
     public ResultResponse<Void> updateAccountLastLoginAt(@PathVariable String id) {
         accountService.updateByLastLoginAt(id);
 
@@ -105,7 +107,7 @@ public class AccountApiController {
 
     // createAccountAccountState -> updateAccountAccountStateById
     // PostMapping("/status ") -> PostMapping("/create/status/id")
-    @PostMapping("/create/status/id")
+    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-id}")
     public ResultResponse<Void> createAccountAccountStateById(
         @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
         BindingResult bindingResult) {
@@ -124,7 +126,7 @@ public class AccountApiController {
             .build();
     }
 
-    @PostMapping("/create/status/email")
+    @PostMapping("com.nhn.minidooray.accountapi.requestmapping.create-account-state-by-email")
     public ResultResponse<Void> createAccountAccountStateByEmail(
         @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
         BindingResult bindingResult) {
@@ -143,7 +145,7 @@ public class AccountApiController {
             .build();
     }
 
-    @PutMapping("/update/name/id")
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-name-by-id}")
     public ResultResponse<Void> updateNameById(
         @RequestBody @Valid ModifyAccountNameRequest modifyAccountNameRequest,
         BindingResult bindingResult) {
@@ -162,7 +164,7 @@ public class AccountApiController {
             .build();
     }
 
-    @PutMapping("/update/name/email")
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-name-by-email}")
     public ResultResponse<Void> updateNameByEmail(
         @RequestBody @Valid ModifyAccountNameRequest modifyAccountNameRequest,
         BindingResult bindingResult) {
@@ -181,7 +183,7 @@ public class AccountApiController {
             .build();
     }
 
-    @PutMapping("/update/password/id")
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-password-by-id}")
     public ResultResponse<Void> updatePasswordById(
         @RequestBody @Valid ModifyAccountPasswordRequest modifyAccountPasswordRequest,
         BindingResult bindingResult) {
@@ -200,7 +202,7 @@ public class AccountApiController {
 
     }
 
-    @PutMapping("/update/password/email")
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-password-by-email}")
     public ResultResponse<Void> updatePasswordByEmail(
         @RequestBody @Valid ModifyAccountPasswordRequest modifyAccountPasswordRequest,
         BindingResult bindingResult) {
@@ -222,12 +224,10 @@ public class AccountApiController {
     /**
      *  TODO totalCount가 항상 1이 나오는 문제있음.
      */
-    @GetMapping("/accounts")
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-list}")
     public ResultResponse<List<AccountDto>> readAccounts() {
 
         List<AccountDto> accounts = accountService.findAll();
-
-
 
         return ResultResponse.<List<AccountDto>>builder()
             .header(ResultResponse.Header.builder()
@@ -236,6 +236,43 @@ public class AccountApiController {
                 .resultMessage("Accounts found")
                 .build())
             .result(Collections.singletonList(accounts))
+            .build();
+
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-account-by-id}")
+    public ResultResponse<Void> deactivationAccountById(@PathVariable String id) {
+        accountService.deactivationById(id);
+        return ResultResponse.<Void>builder()
+            .header(ResultResponse.Header.builder()
+                .isSuccessful(true)
+                .resultCode(200)
+                .resultMessage("Account deactivated")
+                .build())
+            .build();
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-account-by-email}")
+    public ResultResponse<Void> deactivationAccountByEmail(@PathVariable String email) {
+        accountService.deactivationByEmail(email);
+        return ResultResponse.<Void>builder()
+            .header(ResultResponse.Header.builder()
+                .isSuccessful(true)
+                .resultCode(200)
+                .resultMessage("Account deactivated")
+                .build())
+            .build();
+    }
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-accounts-by-all}")
+    public  ResultResponse<Void> deactivationAllAccountByList() {
+        List<AccountDto> accounts = accountService.findAll();
+        accountService.deactivationAllByAccounts(accounts);
+        return ResultResponse.<Void>builder()
+            .header(ResultResponse.Header.builder()
+                .isSuccessful(true)
+                .resultCode(200)
+                .resultMessage("Account deactivated")
+                .build())
             .build();
     }
 

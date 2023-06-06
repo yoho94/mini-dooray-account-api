@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountAccountStateRepository accountAccountStateRepository;
