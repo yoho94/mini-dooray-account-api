@@ -1,13 +1,17 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
+import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
+import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
 import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
+import com.nhn.minidooray.accountapi.util.IdOrEmailUtills;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +29,31 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
 
 
     @Override
-    public AccountAccountStateDto save(AccountAccountStateDto accountAccountStateDto) {
+    public AccountAccountStateDto save(AccountAccountCreateRequest accountAccountCreateRequest) {
+        if (!IdOrEmailUtills.checkId(accountAccountCreateRequest.getIdOrEmail())) {
+            throw new InvalidIdFormatException();
+        }
+
+        AccountAccountStateDto accountAccountStateDto = convertToDto(accountAccountCreateRequest);
+
         AccountAccountStateEntity entity = convertToEntity(accountAccountStateDto);
 
         entity.setAccount(
-            accountRepository.getReferenceById(accountAccountStateDto.getPkDto().getAccountId()));
+            accountRepository.getReferenceById(
+                accountAccountCreateRequest.getIdOrEmail()));
         entity.setAccountState(accountStateRepository.getReferenceById(
-            accountAccountStateDto.getPkDto().getAccountStateCode()));
+            accountAccountCreateRequest.getAccountStateCode()));
+
+
         if (entity.getAccountState() == null) {
-            throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
-                .getAccountStateCode());
+            throw new ReferencedColumnException(accountAccountCreateRequest.
+                getAccountStateCode());
         }
         if (entity.getAccount() == null) {
-            throw new ReferencedColumnException(accountAccountStateDto.getPkDto()
-                .getAccountId());
+            throw new ReferencedColumnException(accountAccountCreateRequest
+                .getIdOrEmail());
         }
+
 
         return convertToDto(accountAccountStateRepository.save(entity));
     }
@@ -130,7 +144,15 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         return AccountAccountStateDto.builder()
             .pkDto(convertToPkDto(accountAccountStateEntity.getPk())).build();
     }
-
+    private AccountAccountStateDto convertToDto(AccountAccountCreateRequest accountAccountCreateRequest) {
+        return AccountAccountStateDto.builder()
+            .pkDto(AccountAccountStateDto.PkDto.builder()
+                .accountId(accountAccountCreateRequest.getIdOrEmail())
+                .accountStateCode(accountAccountCreateRequest.getAccountStateCode())
+                .changeAt(LocalDateTime.now())
+                .build())
+            .build();
+    }
     private AccountAccountStateEntity convertToEntity(
         AccountAccountStateDto accountAccountStateDto) {
         return AccountAccountStateEntity.builder()
@@ -146,4 +168,6 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
         return AccountAccountStateEntity.Pk.builder().accountId(pkDto.getAccountId())
             .accountStateCode(pkDto.getAccountStateCode()).changeAt(pkDto.getChangeAt()).build();
     }
+
+
 }

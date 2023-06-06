@@ -3,6 +3,8 @@ package com.nhn.minidooray.accountapi.advice;
 import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
+import com.nhn.minidooray.accountapi.exception.InvalidEmailFormatException;
+import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
 import com.nhn.minidooray.accountapi.exception.LoginFailException;
 import com.nhn.minidooray.accountapi.exception.RecentStateException;
 import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
@@ -52,6 +54,16 @@ public class ApiAdvice {
     @ExceptionHandler(ReferencedColumnException.class)
     public ResponseEntity<String> handleReferencedColumnException(ReferencedColumnException ex) {
         String errorMessage = String.format(ex.getMessage(),ex.getReferencedColumn());
+        return ResponseEntity.status(ex.getStatus()).body(errorMessage);
+    }
+    @ExceptionHandler(InvalidEmailFormatException.class)
+    public ResponseEntity<String> handleInvalidEmailFormatException(InvalidEmailFormatException ex) {
+        String errorMessage = String.format(ex.getMessage());
+        return ResponseEntity.status(ex.getStatus()).body(errorMessage);
+    }
+    @ExceptionHandler(InvalidIdFormatException.class)
+    public ResponseEntity<String> handleInvalidIdFormatException(InvalidIdFormatException ex) {
+        String errorMessage = String.format(ex.getMessage());
         return ResponseEntity.status(ex.getStatus()).body(errorMessage);
     }
 }

@@ -4,6 +4,7 @@ import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStatus;
+import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.ModifyAccountNameRequest;
 import com.nhn.minidooray.accountapi.domain.request.ModifyAccountPasswordRequest;
@@ -134,8 +135,12 @@ public class AccountServiceImpl implements AccountService {
             .builder()
             .pkDto(pkDto)
             .build();
+
         accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
-        accountAccountStateService.save(accountAccountStateDto);
+        accountDto.setAccountAccountStateChangeAt(accountAccountStateDto.getPkDto().getChangeAt());
+
+        accountAccountStateService.save(convertToAccountAccountCreateRequest(accountAccountStateDto));
+
         return accountDto;
     }
 
@@ -218,7 +223,7 @@ public class AccountServiceImpl implements AccountService {
     //TODO DEACT 할때 이미 해당하는 상태이면 저장되지 않도록 구현해야함.
     @Override
     public void deactivation(AccountAccountStateDto accountAccountStateDto) {
-        accountAccountStateService.save(accountAccountStateDto);
+        accountAccountStateService.save(convertToAccountAccountCreateRequest(accountAccountStateDto));
     }
 
     @Transactional
@@ -278,6 +283,16 @@ public class AccountServiceImpl implements AccountService {
             .password(accountCreateRequest.getPassword())
             .id(accountCreateRequest.getId())
             .build();
+    }
+
+    private AccountAccountCreateRequest convertToAccountAccountCreateRequest(
+        AccountAccountStateDto accountAccountStateDto
+    ) {
+        AccountAccountCreateRequest accountAccountCreateRequest = new AccountAccountCreateRequest();
+        accountAccountCreateRequest.setIdOrEmail(accountAccountStateDto.getPkDto().getAccountId());
+        accountAccountCreateRequest.setAccountStateCode(
+            accountAccountStateDto.getPkDto().getAccountStateCode());
+        return accountAccountCreateRequest;
     }
 
 }
