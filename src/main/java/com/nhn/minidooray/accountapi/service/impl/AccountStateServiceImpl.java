@@ -1,11 +1,13 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
+import com.nhn.minidooray.accountapi.domain.request.AccountStateCreateRequest;
 import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -18,20 +20,20 @@ public class AccountStateServiceImpl implements AccountStateService {
     private final AccountStateRepository accountStateRepository;
 
     @Override
-    public AccountStateDto save(AccountStateDto accountStateDto) {
-        if (accountStateRepository.existsById(accountStateDto.getCode())) {
+    public AccountStateDto save(AccountStateCreateRequest accountStateCreateRequest) {
+        if (accountStateRepository.existsById(accountStateCreateRequest.getCode())) {
 
-            throw new DataAlreadyExistsException(accountStateDto.getCode());
+            throw new DataAlreadyExistsException(accountStateCreateRequest.getCode());
         }
-        return convertToDto(accountStateRepository.save(convertToEntity(accountStateDto)));
+        return convertToDto(accountStateRepository.save(convertToEntity(convertToDto(accountStateCreateRequest))));
     }
 
     @Override
-    public AccountStateDto update(AccountStateDto accountStateDto) {
-        if (accountStateRepository.existsById(accountStateDto.getCode())) {
-            accountStateRepository.save(convertToEntity(accountStateDto));
-        }
-        throw new DataNotFoundException(accountStateDto.getCode(), accountStateDto.getName());
+    public AccountStateDto update(AccountStateCreateRequest accountStateCreateRequest) {
+        AccountStateEntity entity=accountStateRepository.findById(accountStateCreateRequest.getCode()).orElseThrow(() -> new DataNotFoundException(accountStateCreateRequest.getCode()));
+        entity.setName(accountStateCreateRequest.getName());
+        entity.setCreateAt(LocalDateTime.now());
+        return convertToDto(accountStateRepository.save(entity));
     }
 
     @Override
@@ -78,7 +80,13 @@ public class AccountStateServiceImpl implements AccountStateService {
             .createAt(accountStateEntity.getCreateAt())
             .build();
     }
-
+    private AccountStateDto convertToDto(AccountStateCreateRequest accountStateCreateRequest) {
+        return AccountStateDto.builder()
+            .code(accountStateCreateRequest.getCode())
+            .name(accountStateCreateRequest.getName())
+            .createAt(LocalDateTime.now())
+            .build();
+    }
     private AccountStateEntity convertToEntity(AccountStateDto accountStateDto) {
         return AccountStateEntity.builder()
             .code(accountStateDto.getCode())

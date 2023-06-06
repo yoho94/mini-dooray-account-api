@@ -3,10 +3,10 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "id": "exampleID",
-  "password": "securePassword",
-  "email": "example2@email.com",
-  "name": "Example Name"
+  "id": "exampleID3",
+  "password": "securePassword3",
+  "email": "example3@email.com",
+  "name": "Example Name3"
 }
 
 ### GET id

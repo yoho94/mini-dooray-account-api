@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class RequestMappingProperties {
 
     private String prefix;
-
+    // ACCOUNT SERVICE
     private String createAccount;
     private String readAccountById;
     private String readAccountByEmail;
@@ -25,4 +25,15 @@ public class RequestMappingProperties {
     private String deactAccountsByAll;
     private String createAccountStateById;
     private String createAccountStateByEmail;
+
+    // ACCOUNT STATE SERVICE
+    private String createState;
+
+    private String updateState;
+
+    private String readStateList;
+    private String readStateByCode;
+
+    private String deleteStateByCode;
+    private String deleteAllState;
 }

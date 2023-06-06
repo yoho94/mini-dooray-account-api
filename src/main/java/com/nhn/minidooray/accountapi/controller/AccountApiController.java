@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,8 +46,8 @@ public class AccountApiController {
         return ResultResponse.<Void>builder()
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
-                .resultCode(201)
-                .resultMessage("Account successfully created")
+                .resultCode(HttpStatus.CREATED.value())
+                .resultMessage("${com.nhn.minidooray.accountapi.message.create-succ-message}")
                 .build())
             .build();
     }
@@ -64,7 +65,7 @@ public class AccountApiController {
         return ResultResponse.<AccountDto>builder()
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
-                .resultCode(200)
+                .resultCode(HttpStatus.OK.value())
                 .resultMessage("Account found")
                 .build())
             .result(Collections.singletonList(account))
