@@ -1,5 +1,6 @@
 package com.nhn.minidooray.accountapi.controller;
 
+import com.nhn.minidooray.accountapi.config.MessageProperties;
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
@@ -20,12 +21,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO MESSAGE SOURCE로 메세지 받아오게 해야함.
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${com.nhn.minidooray.accountapi.requestmapping.prefix}")
 public class AccountAccountStateController {
     private final AccountAccountStateService accountAccountStateService;
+    private final MessageProperties messageProperties;
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-account-state}")
     public ResultResponse<AccountAccountStateDto> createAccountAccountState(@RequestBody @Valid AccountAccountCreateRequest accountAccountCreateRequest, BindingResult bindingResult) {
@@ -38,7 +39,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.CREATED.value())
-                .resultMessage("AccountAccountState Created Successfully")
+                .resultMessage("AccountAccountState "+messageProperties.getCreateSuccMessage())
                 .build())
             .result(Collections.singletonList(result))
             .build();
@@ -51,7 +52,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("AccountAccountStates Retrieved Successfully")
+                .resultMessage("AccountAccountStates "+messageProperties.getGetSuccMessage())
                 .build())
             .result(results)
             .build();
@@ -63,7 +64,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("Fetched all account-account-states successfully")
+                .resultMessage("All account-account-states "+messageProperties.getGetSuccMessage())
                 .build())
             .result(Collections.singletonList(accountAccountStateDtos))
             .build();
@@ -75,7 +76,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("Fetched all account-account-states by account state code successfully")
+                .resultMessage("All account-account-states by account state code "+messageProperties.getGetSuccMessage())
                 .build())
             .result(Collections.singletonList(accountAccountStateDtos))
             .build();
@@ -87,7 +88,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account ID and account state code deleted successfully")
+                .resultMessage("All account-account-states by account ID and account state code "+messageProperties.getDeleteSuccMessage())
                 .build())
             .build();
     }
@@ -98,7 +99,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account ID deleted successfully")
+                .resultMessage("All account-account-states by account ID "+messageProperties.getDeleteSuccMessage())
                 .build())
             .build();
     }
@@ -109,7 +110,7 @@ public class AccountAccountStateController {
             .header(ResultResponse.Header.builder()
                 .isSuccessful(true)
                 .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account state code deleted successfully")
+                .resultMessage("All account-account-states by account state code "+messageProperties.getDeleteSuccMessage())
                 .build())
             .build();
     }

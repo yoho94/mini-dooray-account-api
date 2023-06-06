@@ -4,10 +4,10 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "id": "exampleID3",
-  "password": "securePassword3",
-  "email": "example3@email.com",
-  "name": "Example Name3"
+  "id": "exampleID",
+  "password": "securePassword",
+  "email": "example@email.com",
+  "name": "Example Name"
 }
 
 ### READ ACCOUNT BY ID

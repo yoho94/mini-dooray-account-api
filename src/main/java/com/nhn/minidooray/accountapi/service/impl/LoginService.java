@@ -2,8 +2,10 @@ package com.nhn.minidooray.accountapi.service.impl;
 
 import com.nhn.minidooray.accountapi.domain.request.LoginRequest;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
 import com.nhn.minidooray.accountapi.exception.LoginFailException;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
+import com.nhn.minidooray.accountapi.util.IdOrEmailUtills;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ public class LoginService {
 
 
     public AccountEntity loginValidate(LoginRequest loginRequest) {
+        if(!IdOrEmailUtills.checkId(loginRequest.getId())) {
+            throw new InvalidIdFormatException();
+        }
 
         AccountEntity account = accountRepository.findById(loginRequest.getId())
             .orElseThrow(() -> new LoginFailException(loginRequest.getId()));

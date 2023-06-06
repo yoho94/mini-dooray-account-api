@@ -17,23 +17,7 @@ import lombok.Setter;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountStateDto {
-
-    private PkDto pkDto;
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
-    @EqualsAndHashCode
-    @Generated
-    public static class PkDto {
-
         private String accountId;
         private String accountStateCode;
-
         private LocalDateTime changeAt;
-    }
-
-
 }

@@ -1,5 +1,6 @@
 package com.nhn.minidooray.accountapi.controller;
 
+import com.nhn.minidooray.accountapi.config.MessageProperties;
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
@@ -26,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO MESSAGE SOURCE로 메세지 받아오게 해야함.
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${com.nhn.minidooray.accountapi.requestmapping.prefix}")
 public class AccountApiController {
 
     private final AccountService accountService;
+    private final MessageProperties messageProperties;
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account}")
     public ResultResponse<Void> createAccount(
@@ -45,10 +46,10 @@ public class AccountApiController {
         accountService.save(accountCreateRequest);
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true)
-                .resultCode(HttpStatus.CREATED.value())
-                .resultMessage("${com.nhn.minidooray.accountapi.message.create-succ-message}")
-                .build()).build();
+                ResultResponse.Header.builder().isSuccessful(true)
+                    .resultCode(HttpStatus.CREATED.value())
+                    .resultMessage("Account" + messageProperties.getCreateSuccMessage()).build())
+            .build();
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-by-id}")
@@ -63,7 +64,8 @@ public class AccountApiController {
 
         return ResultResponse.<AccountDto>builder().header(
                 ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
-                    .resultMessage("Account found").build()).result(Collections.singletonList(account))
+                    .resultMessage("Account " + messageProperties.getGetSuccMessage()).build())
+            .result(Collections.singletonList(account))
             .build();
 
     }
@@ -80,7 +82,8 @@ public class AccountApiController {
 
         return ResultResponse.<AccountDto>builder().header(
                 ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                    .resultMessage("Account found").build()).result(Collections.singletonList(account))
+                    .resultMessage("Account " + messageProperties.getGetSuccMessage()).build())
+            .result(Collections.singletonList(account))
             .build();
     }
 
@@ -106,7 +109,9 @@ public class AccountApiController {
             accountCreateRequest.getAccountStateCode());
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(201).resultMessage("성공")
+            ResultResponse.Header.builder().isSuccessful(true)
+                .resultCode(HttpStatus.CREATED.value())
+                .resultMessage("Account state " + messageProperties.getCreateSuccMessage())
                 .build()).build();
     }
 
@@ -121,7 +126,9 @@ public class AccountApiController {
             accountCreateRequest.getAccountStateCode());
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(201).resultMessage("성공")
+            ResultResponse.Header.builder().isSuccessful(true)
+                .resultCode(HttpStatus.CREATED.value())
+                .resultMessage("Account " + messageProperties.getCreateSuccMessage())
                 .build()).build();
     }
 
@@ -136,8 +143,11 @@ public class AccountApiController {
         accountService.updateNameById(modifyAccountNameRequest);
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account name successfully updated").build()).build();
+                ResultResponse.Header.builder().isSuccessful(true)
+                    .resultCode(HttpStatus.OK.value())
+                    .resultMessage("Account name " + messageProperties.getUpdateSuccMessage())
+                    .build())
+            .build();
     }
 
     @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-name-by-email}")
@@ -151,8 +161,9 @@ public class AccountApiController {
         accountService.updateNameByEmail(modifyAccountNameRequest);
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account name successfully updated").build()).build();
+                ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
+                    .resultMessage("Account name " + messageProperties.getUpdateSuccMessage()).build())
+            .build();
     }
 
     @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-password-by-id}")
@@ -165,8 +176,9 @@ public class AccountApiController {
         accountService.updatePasswordById(modifyAccountPasswordRequest);
 
         return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account password successfully updated").build()).build();
+            ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
+                .resultMessage("Account password " + messageProperties.getUpdateSuccMessage())
+                .build()).build();
 
     }
 
@@ -181,13 +193,13 @@ public class AccountApiController {
 
         return ResultResponse.<Void>builder().header(
             ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account password successfully updated").build()).build();
+                .resultMessage("Account password " + messageProperties.getUpdateSuccMessage())
+                .build()).build();
 
     }
 
     /**
      * TODO totalCount가 항상 1이 나오는 문제있음.
-     * TODO ACCOUT ACCOUNT STATE 삭제시 데이터 무결성이 깨지는것 같음 findAll이 안됌
      */
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-list}")
     public ResultResponse<List<AccountDto>> readAccounts() {
@@ -196,7 +208,7 @@ public class AccountApiController {
 
         return ResultResponse.<List<AccountDto>>builder().header(
                 ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                    .resultMessage("Accounts found").build())
+                    .resultMessage("Account list "+messageProperties.getGetSuccMessage()).build())
             .result(Collections.singletonList(accounts)).build();
 
     }
@@ -206,7 +218,7 @@ public class AccountApiController {
         accountService.deactivationById(id);
         return ResultResponse.<Void>builder().header(
             ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account deactivated").build()).build();
+                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-account-by-email}")
@@ -214,17 +226,16 @@ public class AccountApiController {
         accountService.deactivationByEmail(email);
         return ResultResponse.<Void>builder().header(
             ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account deactivated").build()).build();
+                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
     }
 
-    // TODO ACCOUT ACCOUNT STATE 삭제시 데이터 무결성이 깨지는것 같음
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.deact-accounts-by-all}")
     public ResultResponse<Void> deactivationAllAccountByList() {
         List<AccountDto> accounts = accountService.findAll();
         accountService.deactivationAllByAccounts(accounts);
         return ResultResponse.<Void>builder().header(
             ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account deactivated").build()).build();
+                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
     }
 
 }

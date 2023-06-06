@@ -12,17 +12,19 @@ import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
 import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
+import com.nhn.minidooray.accountapi.exception.InvalidEmailFormatException;
+import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
 import com.nhn.minidooray.accountapi.exception.RecentStateException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.service.AccountService;
 import com.nhn.minidooray.accountapi.service.AccountStateService;
+import com.nhn.minidooray.accountapi.util.IdOrEmailUtills;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,69 +42,95 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountStateService accountStateService;
 
-    /**
-     * TODO ACCOUNT SAVE시 EMAIL 패턴 검사 해야함..
-     */
-
     @Override
     @Transactional
     public AccountDto save(AccountCreateRequest accountCreateRequest) {
-        AccountDto beforeAccountDto = convertAccountCreateRequestToAccountDto(accountCreateRequest);
-        // 데이터베이스에 저장되기 직전에 createdAt 추가
-        beforeAccountDto.setCreatedAt(LocalDateTime.now());
+        String email = accountCreateRequest.getEmail();
+
+        if (!IdOrEmailUtills.checkEmail(email)) {
+            throw new InvalidEmailFormatException();
+        }
 
         if (accountRepository.existsById(accountCreateRequest.getId())) {
             throw new DataAlreadyExistsException(accountCreateRequest.getId());
         }
-        if (accountRepository.existsByEmail(accountCreateRequest.getEmail())) {
-            throw new DataAlreadyExistsException(accountCreateRequest.getEmail());
+
+        if (accountRepository.existsByEmail(email)) {
+            throw new DataAlreadyExistsException(email);
         }
 
-        AccountEntity entity = accountRepository.save(convertToEntity(beforeAccountDto));
+        AccountDto accountDto = convertAccountCreateRequestToAccountDto(accountCreateRequest);
+        accountDto.setCreatedAt(LocalDateTime.now());
+
+        AccountEntity entity = accountRepository.save(convertToEntity(accountDto));
 
         return updateStatus(convertToDto(entity), AccountStatus.REGISTERED.getStatusValue());
     }
+
 
     /**
      * 이 업데이트는 회원 정보를 변경하는 기능입니다.
      */
     @Override
     public AccountDto update(AccountDto accountDto) {
-        if (accountRepository.existsById(accountDto.getId())) {
-            return convertToDto(accountRepository.save(convertToEntity(accountDto)));
+        String accountId = accountDto.getId();
+
+        if (accountRepository.existsById(accountId)) {
+            AccountEntity entity = convertToEntity(accountDto);
+            AccountEntity updatedEntity = accountRepository.save(entity);
+            return convertToDto(updatedEntity);
         }
-        throw new IllegalStateException("");
+        throw new DataNotFoundException(accountDto.getId());
     }
 
     @Override
     public AccountDto updateNameById(ModifyAccountNameRequest modifyAccountNameRequest) {
-        AccountEntity existedAccount = accountRepository.findById(
-                modifyAccountNameRequest.getIdOrEmail())
-            .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
+        String idOrEmail = modifyAccountNameRequest.getIdOrEmail();
+
+        AccountEntity existedAccount = getAccountById(idOrEmail);
+
         existedAccount.setName(modifyAccountNameRequest.getName());
 
-        return convertToDto(accountRepository.save(existedAccount));
-
+        AccountEntity updatedAccount = accountRepository.save(existedAccount);
+        return convertToDto(updatedAccount);
     }
+
 
     @Override
     public AccountDto updateNameByEmail(ModifyAccountNameRequest modifyAccountNameRequest) {
-        AccountEntity existedAccount = accountRepository.findByEmail(
-                modifyAccountNameRequest.getIdOrEmail())
-            .orElseThrow(() -> new DataNotFoundException(modifyAccountNameRequest.getIdOrEmail()));
+        String email = modifyAccountNameRequest.getIdOrEmail();
+
+        AccountEntity existedAccount = getAccountByEmail(email);
+
+        existedAccount.setName(modifyAccountNameRequest.getName());
+
+        AccountEntity updatedAccount = accountRepository.save(existedAccount);
+        return convertToDto(updatedAccount);
+    }
+
+
+    public AccountDto updateName(ModifyAccountNameRequest modifyAccountNameRequest) {
+        String idOrEmail = modifyAccountNameRequest.getIdOrEmail();
+        AccountEntity existedAccount;
+
+        if (IdOrEmailUtills.checkIdOrEmail(idOrEmail)) {
+            existedAccount = accountRepository.findByEmail(idOrEmail)
+                .orElseThrow(() -> new DataNotFoundException(idOrEmail));
+        } else {
+            existedAccount = accountRepository.findById(idOrEmail)
+                .orElseThrow(() -> new DataNotFoundException(idOrEmail));
+        }
+
         existedAccount.setName(modifyAccountNameRequest.getName());
 
         return convertToDto(accountRepository.save(existedAccount));
-
     }
 
     @Override
     public AccountDto updatePasswordById(
         ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
-        AccountEntity existedAccount = accountRepository.findById(
-                modifyAccountPasswordRequest.getIdOrEmail())
-            .orElseThrow(
-                () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+        AccountEntity existedAccount = getAccountById(modifyAccountPasswordRequest.getIdOrEmail());
+
         existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
 
         return convertToDto(accountRepository.save(existedAccount));
@@ -111,12 +139,28 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountDto updatePasswordByEmail(
         ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
-        AccountEntity existedAccount = accountRepository.findByEmail(
-                modifyAccountPasswordRequest.getIdOrEmail())
-            .orElseThrow(
-                () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+        AccountEntity existedAccount = getAccountByEmail(modifyAccountPasswordRequest.getIdOrEmail());
+
         existedAccount.setPassword(modifyAccountPasswordRequest.getPassword());
+
         return convertToDto(accountRepository.save(existedAccount));
+    }
+
+    public AccountDto updatePassword(ModifyAccountPasswordRequest modifyAccountPasswordRequest) {
+        AccountEntity entity;
+        if (IdOrEmailUtills.checkIdOrEmail(modifyAccountPasswordRequest.getIdOrEmail())) {
+            entity = accountRepository.findByEmail(modifyAccountPasswordRequest.getIdOrEmail())
+                .orElseThrow(
+                    () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+        } else {
+            entity = accountRepository.findById(modifyAccountPasswordRequest.getIdOrEmail())
+                .orElseThrow(
+                    () -> new DataNotFoundException(modifyAccountPasswordRequest.getIdOrEmail()));
+
+        }
+        entity.setPassword(modifyAccountPasswordRequest.getPassword());
+        return convertToDto(accountRepository.save(entity));
+
     }
 
     @Override
@@ -124,22 +168,18 @@ public class AccountServiceImpl implements AccountService {
     public AccountDto updateStatus(AccountDto accountDto, String statusCode) {
         AccountStateDto accountStateDto = accountStateService.findByCode(statusCode);
 
-        AccountAccountStateDto.PkDto pkDto = AccountAccountStateDto.PkDto
+        AccountAccountStateDto accountAccountStateDto = AccountAccountStateDto
             .builder()
             .accountId(accountDto.getId())
             .accountStateCode(accountStateDto.getCode())
             .changeAt(LocalDateTime.now())
             .build();
 
-        AccountAccountStateDto accountAccountStateDto = AccountAccountStateDto
-            .builder()
-            .pkDto(pkDto)
-            .build();
+        accountDto.setAccountStateCode(accountAccountStateDto.getAccountStateCode());
+        accountDto.setAccountAccountStateChangeAt(accountAccountStateDto.getChangeAt());
 
-        accountDto.setAccountStateCode(accountAccountStateDto.getPkDto().getAccountStateCode());
-        accountDto.setAccountAccountStateChangeAt(accountAccountStateDto.getPkDto().getChangeAt());
-
-        accountAccountStateService.save(convertToAccountAccountCreateRequest(accountAccountStateDto));
+        accountAccountStateService.save(
+            convertToAccountAccountCreateRequest(accountAccountStateDto));
 
         return accountDto;
     }
@@ -147,8 +187,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDto updateStatusById(String accountId, String statusCode) {
-        AccountEntity existedAccount = accountRepository.findById(accountId)
-            .orElseThrow(() -> new DataNotFoundException(accountId));
+        AccountEntity existedAccount = getAccountById(accountId);
 
         return updateStatus(convertToDto(existedAccount), statusCode);
     }
@@ -156,22 +195,21 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountDto updateStatusByEmail(String email, String statusCode) {
-        AccountEntity existedAccount = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new DataNotFoundException(email));
+        AccountEntity existedAccount = getAccountByEmail(email);
 
         return updateStatus(convertToDto(existedAccount), statusCode);
     }
 
     @Override
     public AccountDto findById(String id) {
-        AccountEntity existedAccount = accountRepository.findById(id)
-            .orElseThrow(() -> new DataNotFoundException(id));
+        AccountEntity existedAccount = getAccountById(id);
 
         AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
                 id)
             .orElseThrow(() -> new RecentStateException(id));
 
         AccountDto accountDto = convertToDto(existedAccount);
+
         accountDto.setAccountStateCode(state.getPk().getAccountStateCode());
         accountDto.setAccountAccountStateChangeAt(state.getPk().getChangeAt());
 
@@ -180,8 +218,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto findByEmail(String email) {
-        AccountEntity existedAccount = accountRepository.findByEmail(email)
-            .orElseThrow(() -> new DataNotFoundException(email));
+        if (!IdOrEmailUtills.checkEmail(email)) {
+            throw new InvalidEmailFormatException();
+        }
+        AccountEntity existedAccount = getAccountByEmail(email);
 
         AccountAccountStateEntity state = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
                 existedAccount.getId())
@@ -207,7 +247,6 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findAll().stream()
             .map(accountEntity -> {
                 AccountDto accountDto = convertToDto(accountEntity);
-
                 AccountAccountStateEntity stateEntity = accountAccountStateRepository
                     .findTopByAccount_IdOrderByPk_ChangeAtDesc(accountEntity.getId())
                     .orElseThrow(() -> new RecentStateException(accountEntity.getId()));
@@ -223,26 +262,24 @@ public class AccountServiceImpl implements AccountService {
     //TODO DEACT 할때 이미 해당하는 상태이면 저장되지 않도록 구현해야함.
     @Override
     public void deactivation(AccountAccountStateDto accountAccountStateDto) {
-        accountAccountStateService.save(convertToAccountAccountCreateRequest(accountAccountStateDto));
+        accountAccountStateService.save(
+            convertToAccountAccountCreateRequest(accountAccountStateDto));
     }
 
     @Transactional
     @Override
     public void deactivationById(String id) {
 
-        AccountDto accountDto = accountRepository.findById(id).map(this::convertToDto)
-            .orElseThrow(() -> new DataNotFoundException(id));
+        AccountEntity accountEntity = getAccountById(id);
 
-        updateStatus(accountDto, AccountStatus.DEACTIVATED.getStatusValue());
+        updateStatus(convertToDto(accountEntity), AccountStatus.DEACTIVATED.getStatusValue());
     }
 
     @Transactional
     @Override
     public void deactivationByEmail(String email) {
-        AccountDto accountDto = accountRepository.findByEmail(email).map(this::convertToDto)
-            .orElseThrow(() -> new DataNotFoundException(email));
-
-        deactivationById(accountDto.getId());
+        AccountEntity accountEntity = getAccountByEmail(email);
+        deactivationById(convertToDto(accountEntity).getId());
     }
 
     @Transactional
@@ -252,6 +289,16 @@ public class AccountServiceImpl implements AccountService {
             deactivationById(accountDto.getId());
         }
 
+    }
+
+    private AccountEntity getAccountById(String id) {
+        return accountRepository.findById(id)
+            .orElseThrow(() -> new DataNotFoundException(id));
+    }
+
+    private AccountEntity getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email)
+            .orElseThrow(() -> new DataNotFoundException(email));
     }
 
     private AccountDto convertToDto(AccountEntity accountEntity) {
@@ -272,6 +319,7 @@ public class AccountServiceImpl implements AccountService {
             .email(accountDto.getEmail())
             .password(accountDto.getPassword())
             .createAt(accountDto.getCreatedAt())
+            .lastLoginAt(accountDto.getLastLoginAt())
             .build();
     }
 
@@ -289,9 +337,9 @@ public class AccountServiceImpl implements AccountService {
         AccountAccountStateDto accountAccountStateDto
     ) {
         AccountAccountCreateRequest accountAccountCreateRequest = new AccountAccountCreateRequest();
-        accountAccountCreateRequest.setIdOrEmail(accountAccountStateDto.getPkDto().getAccountId());
+        accountAccountCreateRequest.setIdOrEmail(accountAccountStateDto.getAccountId());
         accountAccountCreateRequest.setAccountStateCode(
-            accountAccountStateDto.getPkDto().getAccountStateCode());
+            accountAccountStateDto.getAccountStateCode());
         return accountAccountCreateRequest;
     }
 

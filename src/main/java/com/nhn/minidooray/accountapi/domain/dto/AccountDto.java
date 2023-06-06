@@ -1,5 +1,6 @@
 package com.nhn.minidooray.accountapi.domain.dto;
 
+import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,4 +21,5 @@ public class AccountDto {
     private LocalDateTime createdAt;
     private String accountStateCode;
     private LocalDateTime accountAccountStateChangeAt;
+
 }

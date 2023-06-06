@@ -3,6 +3,7 @@ package com.nhn.minidooray.accountapi.service.impl;
 import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
 import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
+import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
 import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
 import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
 import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
@@ -58,8 +59,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
 
     @Override
     public AccountAccountStateDto update(AccountAccountStateDto accountAccountStateDto) {
-        if (accountAccountStateRepository.existsById(
-            convertToPk(accountAccountStateDto.getPkDto()))) {
+        if (accountAccountStateRepository.existsById(convertToPk(accountAccountStateDto))) {
             return convertToDto(
                 accountAccountStateRepository.save(convertToEntity(accountAccountStateDto)));
         }
@@ -98,7 +98,7 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
     @Override
     public void delete(AccountAccountStateDto accountAccountStateDto) {
         if (accountAccountStateRepository.existsById(
-            convertToPk(accountAccountStateDto.getPkDto()))) {
+            convertToPk(accountAccountStateDto))) {
             accountAccountStateRepository.delete(convertToEntity(accountAccountStateDto));
         }
         throw new AccountWithStateNotFoundException();
@@ -139,35 +139,42 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
 
     private AccountAccountStateDto convertToDto(
         AccountAccountStateEntity accountAccountStateEntity) {
-        return AccountAccountStateDto.builder()
-            .pkDto(convertToPkDto(accountAccountStateEntity.getPk())).build();
+        return AccountAccountStateDto
+            .builder()
+            .accountId(accountAccountStateEntity.getPk().getAccountId())
+            .accountStateCode(accountAccountStateEntity.getPk().getAccountStateCode())
+            .changeAt(accountAccountStateEntity.getPk().getChangeAt())
+            .build();
     }
 
     private AccountAccountStateDto convertToDto(
         AccountAccountCreateRequest accountAccountCreateRequest) {
-        return AccountAccountStateDto.builder()
-            .pkDto(AccountAccountStateDto.PkDto.builder()
-                .accountId(accountAccountCreateRequest.getIdOrEmail())
-                .accountStateCode(accountAccountCreateRequest.getAccountStateCode())
-                .changeAt(LocalDateTime.now())
-                .build())
+        return AccountAccountStateDto
+            .builder()
+            .accountId(accountAccountCreateRequest.getIdOrEmail())
+            .accountStateCode(accountAccountCreateRequest.getAccountStateCode())
+            .changeAt(LocalDateTime.now())
             .build();
     }
 
     private AccountAccountStateEntity convertToEntity(
         AccountAccountStateDto accountAccountStateDto) {
         return AccountAccountStateEntity.builder()
-            .pk(convertToPk(accountAccountStateDto.getPkDto())).build();
+            .pk(Pk.builder()
+                .accountId(accountAccountStateDto.getAccountId())
+                .accountStateCode(accountAccountStateDto.getAccountStateCode())
+                .changeAt(accountAccountStateDto.getChangeAt()).build())
+            .build();
     }
 
-    private AccountAccountStateDto.PkDto convertToPkDto(AccountAccountStateEntity.Pk pk) {
-        return AccountAccountStateDto.PkDto.builder().accountId(pk.getAccountId())
-            .accountStateCode(pk.getAccountStateCode()).changeAt(pk.getChangeAt()).build();
-    }
 
-    private AccountAccountStateEntity.Pk convertToPk(AccountAccountStateDto.PkDto pkDto) {
-        return AccountAccountStateEntity.Pk.builder().accountId(pkDto.getAccountId())
-            .accountStateCode(pkDto.getAccountStateCode()).changeAt(pkDto.getChangeAt()).build();
+    private AccountAccountStateEntity.Pk convertToPk(AccountAccountStateDto accountAccountStateDto) {
+        return AccountAccountStateEntity.Pk
+            .builder()
+            .accountId(accountAccountStateDto.getAccountId())
+            .accountStateCode(accountAccountStateDto.getAccountStateCode())
+            .changeAt(accountAccountStateDto.getChangeAt())
+            .build();
     }
 
 

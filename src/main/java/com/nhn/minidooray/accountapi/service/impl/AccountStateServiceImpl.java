@@ -55,18 +55,22 @@ public class AccountStateServiceImpl implements AccountStateService {
 
     @Override
     public void delete(AccountStateDto accountStateDto) {
-        if (accountStateRepository.existsById(accountStateDto.getCode())) {
-            accountStateRepository.delete(convertToEntity(accountStateDto));
+        if (!accountStateRepository.existsById(accountStateDto.getCode())) {
+            throw new DataNotFoundException(accountStateDto.getCode(), accountStateDto.getName());
+
         }
-        throw new DataNotFoundException(accountStateDto.getCode(), accountStateDto.getName());
+        accountStateRepository.delete(convertToEntity(accountStateDto));
+
     }
 
     @Override
     public void deleteByCode(String code) {
-        if (accountStateRepository.existsById(code)) {
-            accountStateRepository.deleteById(code);
+        if (!accountStateRepository.existsById(code)) {
+            throw new DataNotFoundException(code);
+
         }
-        throw new DataNotFoundException(code);
+        accountStateRepository.deleteById(code);
+
 
 
     }
