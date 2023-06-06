@@ -21,7 +21,7 @@ import lombok.Setter;
 public class AccountCreateRequest {
 
     @NotEmpty
-    @Size(min = 5, max = 40)
+    @Size(min = 5, max = 40,message = "${com.nhn.minidooray.accountapi.validation.account.id-size}")
     private String id;
     @NotEmpty
     @Size(min = 8, max = 200)

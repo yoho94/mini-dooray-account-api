@@ -30,7 +30,7 @@ public class AccountStateController {
     private final AccountStateService accountStateService;
     private final MessageProperties messageProperties;
 
-    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.create-account-state}")
+    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.create-account-state}")
     public ResultResponse<AccountStateDto> createAccountState(
         @RequestBody @Valid AccountStateCreateRequest accountStateCreateRequest,
         BindingResult bindingResult) {
@@ -46,7 +46,7 @@ public class AccountStateController {
             .result(Collections.singletonList(createdAccountState)).build();
     }
 
-    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.update-account-state}")
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.update-account-state}")
     public ResultResponse<AccountStateDto> updateAccountState(
         @RequestBody @Valid AccountStateCreateRequest accountStateCreateRequest,
         BindingResult bindingResult) {
@@ -62,7 +62,7 @@ public class AccountStateController {
             .result(Collections.singletonList(updatedAccountState)).build();
     }
 
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-state-by-code}")
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.read-account-state-by-code}")
     public ResultResponse<AccountStateDto> readAccountStateByCode(
         @PathVariable("code") String code) {
         AccountStateDto accountStateDto = accountStateService.findByCode(code);
@@ -73,7 +73,7 @@ public class AccountStateController {
             .result(Collections.singletonList(accountStateDto)).build();
     }
 
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.read-account-state-list}")
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.read-account-state-list}")
     public ResultResponse<List<AccountStateDto>> readAccountStateList() {
         List<AccountStateDto> accountStateDtoList = accountStateService.findAll();
 
@@ -84,7 +84,7 @@ public class AccountStateController {
             .result(Collections.singletonList(accountStateDtoList)).build();
     }
 
-    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.delete-account-list-state-by-code}")
+    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.delete-account-list-state-by-code}")
     public ResultResponse<Void> deleteAccountStateByCode(@PathVariable("code") String code) {
         accountStateService.deleteByCode(code);
 
@@ -95,7 +95,7 @@ public class AccountStateController {
             .build();
     }
 
-    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.delete-account-list-state}")
+    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-state.delete-account-list-state}")
     public ResultResponse<Void> deleteAllAccountStates() {
         accountStateService.deleteAll();
 

@@ -8,13 +8,9 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Value;
 
-/**
- * CREATE TABLE IF NOT EXISTS `nhn_academy_15`.`ACCOUNT` ( `ID`            VARCHAR(40)  NOT NULL,
- * `PASSWORD`      VARCHAR(200) NOT NULL, `SALT`          VARCHAR(45)  NOT NULL, `NAME` VARCHAR(20)
- * NOT NULL, `EMAIL`         VARCHAR(100) NOT NULL, `LAST_LOGIN_AT` DATETIME     NULL, `CREATE_AT`
- * DATETIME     NOT NULL DEFAULT NOW(), PRIMARY KEY (`ID`) ) ENGINE = InnoDB;
- */
+
 @Entity
 @Table(name = "ACCOUNT")
 @NoArgsConstructor
@@ -27,13 +23,13 @@ import java.time.LocalDateTime;
 public class AccountEntity {
 
     @Id
-    @Size(min = 5, max = 40)
+    @Size(min = 5, max = 40,message = "${com.nhn.minidooray.accountapi.validation.account.id-size}")
     private String id;
-    @Size(min = 8, max = 200)
+    @Size(min = 8, max = 200,message = "${com.nhn.minidooray.accountapi.validation.account.password-size}")
     private String password;
-    @Size(min = 1, max = 20)
+    @Size(min = 1, max = 20,message = "${com.nhn.minidooray.accountapi.validation.account.name-size}")
     private String name;
-    @Size(min = 5, max = 100)
+    @Size(min = 5, max = 100,message = "${com.nhn.minidooray.accountapi.validation.account.email-size}")
     private String email;
     private LocalDateTime lastLoginAt;
     private LocalDateTime createAt;
