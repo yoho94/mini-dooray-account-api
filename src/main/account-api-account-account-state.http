@@ -1,11 +1,39 @@
 ### CREATE ACCOUNT ACCOUNT STATE
-POST /account-account-state/create
+POST /account-api/account-account-state/create
 Host: localhost:8080
 Content-Type: application/json
 
 {
-  "idOrEmail": "",
-  "name": ""
+  "idOrEmail": "exampleID",
+  "accountStateCode": "04"
 }
 
+### READ ALL ACCOUNT ACCOUNT STATE BY ACCOUNT ID AND ACCOUNT STATE CODE
+GET /account-api/account-account-state/list/account/exampleID/state/03 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
 
+### READ ALL ACCOUNT ACCOUNT STATE
+GET /account-api/account-account-state/list HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### READ ALL ACCOUNT ACCOUNT STATE BY ACCOUNT STATE CODE
+GET /account-api/account-account-state/list/state/01 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT ID AND ACCOUNT STATE CODE
+DELETE /account-api/account-account-state/delete/account/exampleID2/state/01 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT ID
+DELETE /account-api/account-account-state/delete/account/exampleID2 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT STATE CODE
+DELETE /account-api/account-account-state/delete/state/04 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
