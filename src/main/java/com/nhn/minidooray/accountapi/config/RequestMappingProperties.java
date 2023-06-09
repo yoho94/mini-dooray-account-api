@@ -11,56 +11,62 @@ public class RequestMappingProperties {
     @Setter
     private String prefix;
 
-    private Account account = new Account();
-    private AccountState accountState = new AccountState();
-    private AccountAccountState accountAccountState = new AccountAccountState();
+    private final Account account = new Account();
+    private final AccountState accountState = new AccountState();
+    private final AccountAccountState accountAccountState = new AccountAccountState();
 
     @Getter
     @Setter
     public static class Account {
+
         private String createAccount;
         private String readAccountById;
         private String readAccountByEmail;
         private String readAccountList;
+        private String readLastChangeAt;
         private String updateAccount;
-        private String updateAccountNameById;
-        private String updateAccountNameByEmail;
+        private String updateAccountName;
         private String updateAccountPasswordById;
         private String updateAccountPasswordByEmail;
-        private String deactAccountByIdAccount;
+        private String updateLastLoginAt;
+
+        private String deactAccount;
         private String deactAccountByEmailAccount;
-        private String deactAccountsByAll;
+        private String deactAccountAll;
         private String createAccountStateById;
         private String createAccountStateByEmail;
     }
+
     @Getter
     @Setter
     public static class AccountState {
-        private String createAccountState;
 
-        private String updateAccountState;
+        private String create;
 
-        private String readAccountStateList;
-        private String readAccountStateByCode;
+        private String update;
 
-        private String deleteAccountListStateByCode;
-        private String deleteAccountListState;
+        private String readList;
+        private String readByCode;
+
+        private String deleteByCode;
 
     }
+
     @Getter
     @Setter
     public static class AccountAccountState {
-        private String createAccountAccountState;
-        private String readAccountAccountStateListByAccountIdAndAccountStateCode;
 
-        private String readAccountAccountStateList;
+        private String create;
+        private String readListByAccountIdAndAccountStateCode;
 
-        private String readAccountAccountStateListByAccountStateCode;
+        private String readList;
 
-        private String deleteAccountAccountStateListByAccountIdAndAccountStateCode;
+        private String readListByAccountStateCode;
 
-        private String deleteAccountAccountStateListByAccountId;
+        private String deleteListByAccountIdAndAccountStateCode;
 
-        private String deleteAccountAccountStateListByAccountStateCode;
+        private String deleteListByAccountId;
+
+        private String deleteListByAccountStateCode;
     }
 }

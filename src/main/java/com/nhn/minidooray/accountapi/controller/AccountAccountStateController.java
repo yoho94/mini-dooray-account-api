@@ -1,8 +1,9 @@
 package com.nhn.minidooray.accountapi.controller;
 
-import com.nhn.minidooray.accountapi.config.MessageProperties;
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
+import com.nhn.minidooray.accountapi.config.ApiMessageProperties;
 import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountWithStateByAccountResponse;
+import com.nhn.minidooray.accountapi.domain.response.CommonAccountWithStateResponse;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
 import com.nhn.minidooray.accountapi.exception.ValidationFailedException;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,93 +25,127 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("${com.nhn.minidooray.accountapi.requestmapping.prefix}")
 public class AccountAccountStateController {
+
     private final AccountAccountStateService accountAccountStateService;
-    private final MessageProperties messageProperties;
+    private final ApiMessageProperties messageProperties;
 
-    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.create-account-account-state}")
-    public ResultResponse<AccountAccountStateDto> createAccountAccountState(@RequestBody @Valid AccountAccountCreateRequest accountAccountCreateRequest, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
-            throw new ValidationFailedException(bindingResult);
+    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.create}")
+    public ResultResponse<Void> createAccountAccountState(
+        @RequestBody @Valid AccountAccountCreateRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidationFailedException( bindingResult );
         }
-        AccountAccountStateDto result = accountAccountStateService.save(accountAccountCreateRequest);
+        accountAccountStateService.create( request.getAccountId(), request.getAccountStateCode() );
 
-        return ResultResponse.<AccountAccountStateDto>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.CREATED.value())
-                .resultMessage("AccountAccountState "+messageProperties.getCreateSuccMessage())
-                .build())
-            .result(Collections.singletonList(result))
-            .build();
-    }
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-account-account-state-list-by-account-id-and-account-state-code}")
-    public ResultResponse<AccountAccountStateDto> readAllAccountAccountStateByAccountIdAndAccountStateCode(@PathVariable String accountId, @PathVariable String accountStateCode) {
-        List<AccountAccountStateDto> results = accountAccountStateService.findAllByAccountIdAndAccountStateCode(accountId, accountStateCode);
-
-        return ResultResponse.<AccountAccountStateDto>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("AccountAccountStates "+messageProperties.getGetSuccMessage())
-                .build())
-            .result(results)
-            .build();
-    }
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-account-account-state-list}")
-    public ResultResponse<List<AccountAccountStateDto>> readAllAccountAccountState() {
-        List<AccountAccountStateDto> accountAccountStateDtos = accountAccountStateService.findAll();
-        return ResultResponse.<List<AccountAccountStateDto>>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states "+messageProperties.getGetSuccMessage())
-                .build())
-            .result(Collections.singletonList(accountAccountStateDtos))
-            .build();
-    }
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-account-account-state-list-by-account-state-code}")
-    public ResultResponse<List<AccountAccountStateDto>> findAllByAccountStateCode(@PathVariable String accountStateCode) {
-        List<AccountAccountStateDto> accountAccountStateDtos = accountAccountStateService.findAllByAccountStateCode(accountStateCode);
-        return ResultResponse.<List<AccountAccountStateDto>>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account state code "+messageProperties.getGetSuccMessage())
-                .build())
-            .result(Collections.singletonList(accountAccountStateDtos))
-            .build();
-    }
-    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-account-account-state-list-by-account-id-and-account-state-code}")
-    public ResultResponse<Void> deleteAllByAccountIdAndAccountStateCode(@PathVariable String accountId, @PathVariable String accountStateCode) {
-        accountAccountStateService.deleteAllByAccountIdAndAccountStateCode(accountId, accountStateCode);
         return ResultResponse.<Void>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account ID and account state code "+messageProperties.getDeleteSuccMessage())
-                .build())
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.CREATED.value() )
+                .resultMessage( "AccountAccountState " + messageProperties.getCreateSuccMessage() )
+                .build() )
             .build();
     }
-    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-account-account-state-list-by-account-id}")
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-list-by-account-id-and-account-state-code}")
+    public ResultResponse<CommonAccountWithStateResponse> getAllByAccountIdAndAccountStateCode(
+        @PathVariable String accountId, @PathVariable String accountStateCode) {
+        List<CommonAccountWithStateResponse> results = accountAccountStateService.getAllByAccountIdAndAccountStateCode(
+            accountId, accountStateCode );
+
+        return ResultResponse.<CommonAccountWithStateResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "AccountAccountStates " + messageProperties.getGetSuccMessage() )
+                .build() )
+            .result( results )
+            .build();
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-list}")
+    public ResultResponse<List<CommonAccountWithStateResponse>> getAll() {
+        List<CommonAccountWithStateResponse> accountAccountStateDtos = accountAccountStateService.getAll();
+        return ResultResponse.<List<CommonAccountWithStateResponse>>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage(
+                    "All account-account-states " + messageProperties.getGetSuccMessage() )
+                .build() )
+            .result( Collections.singletonList( accountAccountStateDtos ) )
+            .build();
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-list-by-account-state-code}")
+    public ResultResponse<List<CommonAccountWithStateResponse>> getByAccountStateCode(
+        @PathVariable String accountStateCode) {
+        List<CommonAccountWithStateResponse> accountAccountStateDtos = accountAccountStateService.getByAccountStateCode(
+            accountStateCode );
+        return ResultResponse.<List<CommonAccountWithStateResponse>>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "All account-account-states by account state code "
+                    + messageProperties.getGetSuccMessage() )
+                .build() )
+            .result( Collections.singletonList( accountAccountStateDtos ) )
+            .build();
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.read-list-by-account-id}")
+    public ResultResponse<AccountWithStateByAccountResponse> getAccountWithStateByAccount(
+        @PathVariable String accountId) {
+        AccountWithStateByAccountResponse accountAccountStateDtos = accountAccountStateService.getByAccount(
+            accountId );
+        return ResultResponse.<AccountWithStateByAccountResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "All account-account-states by account ID "
+                    + messageProperties.getGetSuccMessage() )
+                .build() )
+            .result( Collections.singletonList( accountAccountStateDtos ) )
+            .build();
+    }
+
+    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-list-by-account-id-and-account-state-code}")
+    public ResultResponse<Void> deleteAllByAccountIdAndAccountStateCode(
+        @PathVariable String accountId, @PathVariable String accountStateCode) {
+        accountAccountStateService.deleteAllByAccountIdAndAccountStateCode( accountId,
+            accountStateCode );
+        return ResultResponse.<Void>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "All account-account-states by account ID and account state code "
+                    + messageProperties.getDeleteSuccMessage() )
+                .build() )
+            .build();
+    }
+
+    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-list-by-account-id}")
     public ResultResponse<Void> deleteAllByAccountId(@PathVariable String accountId) {
-        accountAccountStateService.deleteAllByAccountId(accountId);
+        accountAccountStateService.deleteAllByAccountId( accountId );
         return ResultResponse.<Void>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account ID "+messageProperties.getDeleteSuccMessage())
-                .build())
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "All account-account-states by account ID "
+                    + messageProperties.getDeleteSuccMessage() )
+                .build() )
             .build();
     }
-    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-account-account-state-list-by-account-state-code}")
-    public ResultResponse<Void> deleteAllByAccountStateCode(@PathVariable String accountStateCode) {
-        accountAccountStateService.deleteAllByAccountStateCode(accountStateCode);
+
+    @DeleteMapping("${com.nhn.minidooray.accountapi.requestmapping.account-account-state.delete-list-by-account-state-code}")
+    public ResultResponse<Void> deleteAllByStateCode(@PathVariable String accountStateCode) {
+        accountAccountStateService.deleteAllByStateCode( accountStateCode );
         return ResultResponse.<Void>builder()
-            .header(ResultResponse.Header.builder()
-                .isSuccessful(true)
-                .resultCode(HttpStatus.OK.value())
-                .resultMessage("All account-account-states by account state code "+messageProperties.getDeleteSuccMessage())
-                .build())
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( "All account-account-states by account state code "
+                    + messageProperties.getDeleteSuccMessage() )
+                .build() )
             .build();
     }
 }

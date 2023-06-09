@@ -6,11 +6,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class DataAlreadyExistsException extends ApiException {
 
-    private final String id;
+    private static final String SUFFIX = " already exists";
 
-    public DataAlreadyExistsException(String id) {
-        super("Data already exists with id: " + id, HttpStatus.CONFLICT);
-        this.id = id;
+    public DataAlreadyExistsException(String target) {
+        super(target + SUFFIX, HttpStatus.CONFLICT.value());
     }
 
 }

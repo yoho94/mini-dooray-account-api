@@ -13,7 +13,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Generated;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "ACCOUNT_STATE")
@@ -21,7 +20,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Getter
-@Setter
 @EqualsAndHashCode
 @Generated
 public class AccountStateEntity {

@@ -1,48 +1,37 @@
 package com.nhn.minidooray.accountapi.service;
 
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
-
-import com.nhn.minidooray.accountapi.domain.request.ModifyAccountNameRequest;
-import com.nhn.minidooray.accountapi.domain.request.ModifyAccountPasswordRequest;
+import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
+import com.nhn.minidooray.accountapi.domain.response.AccountWithStateResponse;
 import java.util.List;
 
 
 public interface AccountService {
 
-    AccountDto save(AccountCreateRequest accountCreateRequest);
+    String create(AccountCreateRequest accountCreateRequest);
 
-    AccountDto update(AccountDto accountDto);
-    AccountDto updateNameById(ModifyAccountNameRequest modifyAccountNameRequest);
-    AccountDto updateNameByEmail(ModifyAccountNameRequest modifyAccountNameRequest);
-    AccountDto updatePasswordById(ModifyAccountPasswordRequest modifyAccountPasswordRequest);
+    String updateName(String id, AccountUpdateRequest accountUpdateNameRequest);
 
-    AccountDto updatePasswordByEmail(ModifyAccountPasswordRequest modifyAccountPasswordRequest);
+    String updatePassword(String id,
+        AccountUpdateRequest accountUpdatePasswordRequest);
 
-    AccountDto updateStatus(AccountDto accountDto, String statusCode);
+    AccountWithStateResponse getTopByIdWithChangeAt(String id);
 
-    AccountDto updateStatusById(String accountId, String statusCode);
+    String find(String id);
+
+    String findByEmail(String email);
 
 
-    AccountDto updateStatusByEmail(String email, String statusCode);
+    void updateByLastLoginAt(String id);
 
-    AccountDto findById(String id);
+    AccountResponse get(String id);
 
-    AccountDto findByEmail(String email);
-
-    List<AccountDto> findAll();
-
-    void deactivation(AccountAccountStateDto accountDto);
+    List<AccountResponse> getAll();
 
     void deactivationById(String id);
 
-    void deactivationByEmail(String email);
+    void deactivationAllByAccounts(List<String> accountIds);
 
-    void deactivationAllByAccounts(List<AccountDto> accountDtos);
-
-    void updateByLastLoginAt(String id);
 
 }

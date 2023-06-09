@@ -1,11 +1,23 @@
 package com.nhn.minidooray.accountapi.entity;
 
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
 @Entity
@@ -18,7 +30,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode
 @Generated
 public class AccountAccountStateEntity {
-// TODO 로컬db에 생성시 id와 code 데이터 크기가 255로 생기는 문제 있음.
+
     @EmbeddedId
     private Pk pk;
     @MapsId("accountId")
@@ -38,6 +50,7 @@ public class AccountAccountStateEntity {
     @AllArgsConstructor
     @Builder
     @Generated
+    @ToString
     public static class Pk implements Serializable {
 
         @Size(min = 5, max = 40)

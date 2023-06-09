@@ -1,30 +1,25 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
+
+import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
-import com.nhn.minidooray.accountapi.entity.AccountEntity;
-import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
-import com.nhn.minidooray.accountapi.exception.DataAlreadyExistsException;
+import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 import com.nhn.minidooray.accountapi.exception.InvalidEmailFormatException;
 import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
-import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
-import com.nhn.minidooray.accountapi.repository.AccountRepository;
+import com.nhn.minidooray.accountapi.exception.RequestInvalidException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.logging.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,113 +28,151 @@ import org.springframework.transaction.annotation.Transactional;
 @TestPropertySource(locations = "classpath:application-test.properties")
 @Transactional
 class AccountServiceImplTest {
-
-    private static final Logger logger = Logger.getLogger(AccountServiceImplTest.class.getName());
-
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
     @Autowired
-    private AccountServiceImpl accountService;
-
-
-    @Test
-    public void save() {
-        AccountCreateRequest request = createAccountCreateRequest("testID2", "password2",
-            "email2@email.com", "name2");
-        AccountDto accountDto = accountService.save(request);
-        assertThat(accountDto.getId()).isEqualTo("testID2");
+    AccountServiceImpl accountService;
+    @BeforeEach
+    void setUp() {
+        accountService.create(createAccountCreateRequest("testUserId","testUserPassword","testUserEmail@email.com","testUserName"));
     }
 
     @Test
-    public void saveThrowException() {
-        Exception exception1 = assertThrows(InvalidIdFormatException.class, () -> {
-            AccountCreateRequest request = createAccountCreateRequest("testID2@email.com",
-                "password2", "email2@email.com", "name2");
-            AccountDto accountDto = accountService.save(request);
-        });
-        logger.info("LOG : " + exception1.getMessage());
+    void testCreateAccount() {
+        AccountCreateRequest request = createAccountCreateRequest("testUserId","testUserPassword","testUserEmail@email.com","testUserName");
 
-        assertTrue(exception1.getMessage().equals("error.ID format is invalid"));
+        accountService.create(request);
+        assertEquals("testUserId", accountService.find("testUserId"));
 
-        Exception exception2 = assertThrows(InvalidEmailFormatException.class, () -> {
-            AccountCreateRequest request = createAccountCreateRequest("testID", "password2",
-                "email2", "name2");
-            AccountDto accountDto = accountService.save(request);
 
-        });
-        logger.info("LOG : " + exception1.getMessage());
+    }
+    @Test
+    void testCreateAccountThrow(){
+        // 아이디 입력 오류
+        assertThrows(InvalidIdFormatException.class, () -> accountService.create(createAccountCreateRequest("testUserId@email.com","testUserPassword","testUserEmail@email.com","testUserName")));
+        assertThrows(InvalidEmailFormatException.class, () -> accountService.create(createAccountCreateRequest("testUserId","testUserPassword","testUserEmai","testUserName")));
 
-        assertTrue(exception2.getMessage().equals("error.Email format is invalid"));
-
-        Exception exception3 = assertThrows(DataAlreadyExistsException.class, () -> {
-            AccountCreateRequest request = createAccountCreateRequest("testID", "password2",
-                "email@email.com", "name2");
-            AccountDto accountDto = accountService.save(request);
-        });
-        logger.info("LOG : " + exception3.getMessage());
-
-        assertTrue(exception3.getMessage().contains("testID"));
     }
 
     @Test
-    void saveAndFindAll() {
-        AccountCreateRequest request = createAccountCreateRequest("testID2", "password2",
-            "email2@email.com", "name2");
+    void updateAccountName() {
+        AccountUpdateRequest nameUpdateRequest= createAccountUpdateRequest("updateUserName",null,null);
+        accountService.updateName("testUserId",nameUpdateRequest);
 
-        accountService.save(request);
+        assertEquals("updateUserName", accountService.get("testUserId").getName());
 
-        List<AccountDto> accountDtos = accountService.findAll();
-        for (AccountDto accountDto : accountDtos) {
-            logger.info(
-                accountDto.getId() + " " + accountDto.getEmail() + " " + accountDto.getName() + " "
-                    + accountDto.getAccountStateCode() + " " + accountDto.getLastLoginAt() + " "
-                    + accountDto.getCreatedAt());
+    }
+
+    @Test
+    void updateAccountNameThrow() {
+        AccountUpdateRequest nameUpdateRequest= createAccountUpdateRequest("updateUserName","1234",null);
+        assertThrows( RequestInvalidException.class, () -> accountService.updateName("testUserId",nameUpdateRequest));
+    }
+
+    @Test
+    void updateAccountPassword() {
+        AccountUpdateRequest passwordUpdateRequest= createAccountUpdateRequest(null,"123123124",null);
+        accountService.updatePassword( "testUserId",passwordUpdateRequest);
+        assertEquals( "testUserId", accountService.get("testUserId").getId());
+    }
+    @Test
+    void updateAccountPasswordThrow() {
+        AccountUpdateRequest passwordUpdateRequest= createAccountUpdateRequest("updateUserName","1234",null);
+        assertThrows( RequestInvalidException.class, () -> accountService.updateName("testUserId",passwordUpdateRequest));
+    }
+    @Test
+    void getTopByIdWithChangeAt() {
+        accountService.create( createAccountCreateRequest( "getTopById","getTopByIdPassword","getTopById@email.com","getTopBy" ) );
+
+       assertEquals( "01", accountService.getTopByIdWithChangeAt( "getTopById" ).getAccountWithState().getStateCode());
+    }
+
+    @Test
+    void findById() {
+        String id = accountService.find("testUserId");
+        assertEquals("testUserId", id);
+    }
+
+    @Test
+    void findByEmail() {
+        String id = accountService.findByEmail("testUserEmail@email.com");
+        assertEquals("testUserId", id);
+    }
+
+    @Test
+    void updateByLastLoginAt() {
+      accountService.create( createAccountCreateRequest( "updateloginAt","updateloginAtpassword","updateloginAt@email.com","updateloginAt" ) );
+      AccountUpdateRequest accountUpdateRequest= createAccountUpdateRequest(null,null,LocalDateTime.now());
+      accountService.updateByLastLoginAt( "updateloginAt");
+
+      AccountResponse updatedEntity = accountService.get("updateloginAt");
+      assertNotNull( updatedEntity.getLastLoginAt());
+    }
+
+    @Test
+    void getAllAccounts() {
+        accountService.create( createAccountCreateRequest( "updateloginAt","updateloginAtpassword","updateloginAt@email.com","updateloginAt" ) );
+        accountService.create( createAccountCreateRequest( "getTopById","getTopByIdPassword","getTopById@email.com","getTopBy" ) );
+
+        assertEquals(accountService.getAll().size(), 3);
+    }
+
+    @Test
+    @Transactional
+    void deactivationById() {
+        try {
+            Thread.sleep( 1000 );
+        } catch (InterruptedException e) {
+            throw new RuntimeException( e );
         }
-        assertNotNull(accountDtos);
-        assertEquals(5, accountDtos.size());
-        AccountDto accountDto1 = accountDtos.get(0);
+        accountService.deactivationById( "testUserId" );
 
+
+        assertEquals( "02", accountService.getTopByIdWithChangeAt( "testUserId" ).getAccountWithState().getStateCode());
     }
 
-    private AccountEntity createAccountEntity(String id, String password, String email, String name,
-        LocalDateTime lastLoginAt, LocalDateTime createdAt) {
-        return AccountEntity.builder()
-            .id(id)
-            .password(password)
-            .email(email)
-            .name(name)
-            .lastLoginAt(lastLoginAt)
-            .createAt(createdAt)
-            .build();
-    }
+    @Test
+    void deactivationAllByAccounts() {
+        String id1 = accountService.create( createAccountCreateRequest( "updateloginAt","updateloginAtpassword","updateloginAt@email.com","updateloginAt" ) );
+        String id2 = accountService.create( createAccountCreateRequest( "getTopById","getTopByIdPassword","getTopById@email.com","getTopBy" ) );
+        try {
+            Thread.sleep( 1000 );
+        } catch (InterruptedException e) {
+            throw new RuntimeException( e );
+        }
 
-    private AccountStateEntity createAccountStateEntity(String code, String name,
-        LocalDateTime createAt) {
-        return AccountStateEntity.builder()
-            .code(code)
-            .name(name)
-            .createAt(createAt)
-            .build();
-    }
+       List<String> accountIds = List.of(id1,id2);
+        accountService.deactivationAllByAccounts( accountIds );
 
-    private AccountAccountStateEntity createAccountAccountStateEntity(
-        AccountStateEntity accountState, AccountEntity account, LocalDateTime changeAt) {
-        return AccountAccountStateEntity.builder()
-            .accountState(accountState)
-            .account(account)
-            .pk(Pk.builder()
-                .accountId(account.getId())
-                .accountStateCode(accountState.getCode())
-                .changeAt(changeAt)
-                .build())
-            .build();
+        assertEquals( "02", accountService.getTopByIdWithChangeAt( id1 ).getAccountWithState().getStateCode());
+        assertEquals( "02", accountService.getTopByIdWithChangeAt( id2 ).getAccountWithState().getStateCode());
+
+
     }
 
     private AccountCreateRequest createAccountCreateRequest(String id, String password,
         String email, String name) {
-        return AccountCreateRequest.builder()
-            .email(email)
+        AccountCreateRequest accountCreateRequest =  AccountCreateRequest
+            .builder()
             .id(id)
+            .password(password)
+            .name(name)
+            .email(email)
+            .build();
+
+        return accountCreateRequest;
+    }
+    private AccountUpdateRequest createAccountUpdateRequest(String name,String password, LocalDateTime lastLoginAt){
+        AccountUpdateRequest accountUpdateNameRequest = AccountUpdateRequest
+        .builder()
             .name(name)
             .password(password)
+            .lastLoginAt(lastLoginAt)
             .build();
+        ;
+        accountUpdateNameRequest.setName(name);
+        return accountUpdateNameRequest;
     }
+
+
+
 }

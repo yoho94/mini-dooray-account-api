@@ -1,19 +1,14 @@
 package com.nhn.minidooray.accountapi.controller;
 
-import com.nhn.minidooray.accountapi.config.MessageProperties;
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.dto.AccountDto;
-import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
+import com.nhn.minidooray.accountapi.config.ApiMessageProperties;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
-import com.nhn.minidooray.accountapi.domain.request.ModifyAccountNameRequest;
-import com.nhn.minidooray.accountapi.domain.request.ModifyAccountPasswordRequest;
+import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
+import com.nhn.minidooray.accountapi.domain.response.AccountWithStateResponse;
+import com.nhn.minidooray.accountapi.domain.response.CommonResponse;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
-import com.nhn.minidooray.accountapi.exception.ApiException;
-import com.nhn.minidooray.accountapi.exception.DataNotFoundException;
 import com.nhn.minidooray.accountapi.exception.ValidationFailedException;
 import com.nhn.minidooray.accountapi.service.AccountService;
-import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,210 +28,139 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountApiController {
 
     private final AccountService accountService;
-    private final MessageProperties messageProperties;
+    private final ApiMessageProperties apiMessageProperties;
+
 
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account.create-account}")
-    public ResultResponse<Void> createAccount(
-        @RequestBody @Valid AccountCreateRequest accountCreateRequest,
+    public ResultResponse<CommonResponse> createAccount(@RequestBody @Valid AccountCreateRequest request,
         BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
+
+        if(bindingResult.hasErrors()) {
+            throw new ValidationFailedException( bindingResult );
         }
 
-        accountService.save(accountCreateRequest);
+        String result = accountService.create( request );
+        return ResultResponse.<CommonResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.CREATED.value() )
+                .resultMessage( apiMessageProperties.getCreateSuccMessage() )
+                .build() )
+            .result( List.of( CommonResponse.builder().id( result ).build() ) )
+            .build();
+    }
 
-        return ResultResponse.<Void>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true)
-                    .resultCode(HttpStatus.CREATED.value())
-                    .resultMessage("Account" + messageProperties.getCreateSuccMessage()).build())
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-name}")
+    public ResultResponse<CommonResponse> updateAccountName(@PathVariable String id,
+        @RequestBody @Valid AccountUpdateRequest request, BindingResult bindingResult) {
+
+        if(bindingResult.hasErrors()) {
+            throw new ValidationFailedException( bindingResult );
+        }
+
+        String result = accountService.updateName( id, request );
+        return ResultResponse.<CommonResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getUpdateSuccMessage() )
+                .build() )
+            .result( List.of( CommonResponse.builder().id( result ).build() ) )
+            .build();
+    }
+
+    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-password}")
+    public ResultResponse<CommonResponse> updateAccountPasswordById(@PathVariable String id,
+        @RequestBody AccountUpdateRequest request) {
+        String result = accountService.updatePassword( id, request );
+        return ResultResponse.<CommonResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getUpdateSuccMessage() )
+                .build() )
+            .result( List.of( CommonResponse.builder().id( result ).build() ) )
+            .build();
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-last-login-at}")
+    public ResultResponse<Void> updateLastLoginAtById(@PathVariable String id) {
+        accountService.updateByLastLoginAt( id );
+        return ResultResponse.<Void>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getUpdateSuccMessage() )
+                .build() )
+            .build();
+
+    }
+
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-last-change-at}")
+    public ResultResponse<AccountWithStateResponse> getTopAccountWithChangeAt(
+        @PathVariable String id) {
+        AccountWithStateResponse result = accountService.getTopByIdWithChangeAt( id );
+        return ResultResponse.<AccountWithStateResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getGetSuccMessage() )
+                .build() )
+            .result( List.of( result ) )
             .build();
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-by-id}")
-    public ResultResponse<AccountDto> readAccountByID(@PathVariable("id") String id) {
-        AccountDto account;
-
-        try {
-            account = accountService.findById(id);
-        } catch (DataNotFoundException e) {
-            throw new ApiException(e.getMessage(), e.getStatus());
-        }
-
-        return ResultResponse.<AccountDto>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
-                    .resultMessage("Account " + messageProperties.getGetSuccMessage()).build())
-            .result(Collections.singletonList(account))
+    public ResultResponse<CommonResponse> findById(@PathVariable String id) {
+        String result = accountService.find( id );
+        return ResultResponse.<CommonResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getGetSuccMessage() )
+                .build() )
+            .result( List.of( CommonResponse.builder().id( result ).build() ) )
             .build();
-
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-by-email}")
-    public ResultResponse<AccountDto> readAccountByEmail(@PathVariable("email") String email) {
-        AccountDto account;
-
-        try {
-            account = accountService.findByEmail(email);
-        } catch (DataNotFoundException e) {
-            throw new ApiException(e.getMessage(), e.getStatus());
-        }
-
-        return ResultResponse.<AccountDto>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                    .resultMessage("Account " + messageProperties.getGetSuccMessage()).build())
-            .result(Collections.singletonList(account))
+    public ResultResponse<CommonResponse> findByEmail(@PathVariable String email) {
+        String result = accountService.findByEmail( email );
+        return ResultResponse.<CommonResponse>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getGetSuccMessage() )
+                .build() )
+            .result( List.of( CommonResponse.builder().id( result ).build() ) )
             .build();
     }
 
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account}")
-    public ResultResponse<Void> updateAccountLastLoginAt(@PathVariable String id) {
-        accountService.updateByLastLoginAt(id);
-
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200).resultMessage("성공")
-                .build()).build();
-    }
-
-    // createAccountAccountState -> updateAccountAccountStateById
-    // PostMapping("/status ") -> PostMapping("/create/status/id")
-    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account.create-account-state-by-id}")
-    public ResultResponse<Void> createAccountAccountStateById(
-        @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-        accountService.updateStatusById(accountCreateRequest.getIdOrEmail(),
-            accountCreateRequest.getAccountStateCode());
-
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true)
-                .resultCode(HttpStatus.CREATED.value())
-                .resultMessage("Account state " + messageProperties.getCreateSuccMessage())
-                .build()).build();
-    }
-
-    @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account.create-account-state-by-email}")
-    public ResultResponse<Void> createAccountAccountStateByEmail(
-        @RequestBody @Valid AccountAccountCreateRequest accountCreateRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-        accountService.updateStatusByEmail(accountCreateRequest.getIdOrEmail(),
-            accountCreateRequest.getAccountStateCode());
-
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true)
-                .resultCode(HttpStatus.CREATED.value())
-                .resultMessage("Account " + messageProperties.getCreateSuccMessage())
-                .build()).build();
-    }
-
-    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-name-by-id}")
-    public ResultResponse<Void> updateNameById(
-        @RequestBody @Valid ModifyAccountNameRequest modifyAccountNameRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-
-        accountService.updateNameById(modifyAccountNameRequest);
-
-        return ResultResponse.<Void>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true)
-                    .resultCode(HttpStatus.OK.value())
-                    .resultMessage("Account name " + messageProperties.getUpdateSuccMessage())
-                    .build())
-            .build();
-    }
-
-    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-name-by-email}")
-    public ResultResponse<Void> updateNameByEmail(
-        @RequestBody @Valid ModifyAccountNameRequest modifyAccountNameRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-
-        accountService.updateNameByEmail(modifyAccountNameRequest);
-
-        return ResultResponse.<Void>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
-                    .resultMessage("Account name " + messageProperties.getUpdateSuccMessage()).build())
-            .build();
-    }
-
-    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-password-by-id}")
-    public ResultResponse<Void> updatePasswordById(
-        @RequestBody @Valid ModifyAccountPasswordRequest modifyAccountPasswordRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-        accountService.updatePasswordById(modifyAccountPasswordRequest);
-
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(HttpStatus.OK.value())
-                .resultMessage("Account password " + messageProperties.getUpdateSuccMessage())
-                .build()).build();
-
-    }
-
-    @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-password-by-email}")
-    public ResultResponse<Void> updatePasswordByEmail(
-        @RequestBody @Valid ModifyAccountPasswordRequest modifyAccountPasswordRequest,
-        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidationFailedException(bindingResult);
-        }
-        accountService.updatePasswordByEmail(modifyAccountPasswordRequest);
-
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account password " + messageProperties.getUpdateSuccMessage())
-
-                .build()).build();
-
-    }
-
-    /**
-     * TODO totalCount가 항상 1이 나오는 문제있음.
-     */
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-list}")
-    public ResultResponse<List<AccountDto>> readAccounts() {
-
-        List<AccountDto> accounts = accountService.findAll();
-
-        return ResultResponse.<List<AccountDto>>builder().header(
-                ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                    .resultMessage("Account list "+messageProperties.getGetSuccMessage()).build())
-            .result(Collections.singletonList(accounts)).build();
-
+    public ResultResponse<List<AccountResponse>> findAll() {
+        List<AccountResponse> result = accountService.getAll();
+        return ResultResponse.<List<AccountResponse>>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getGetSuccMessage() )
+                .build() )
+            .result( List.of( result ) )
+            .build();
     }
 
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.deact-account-by-id}")
-    public ResultResponse<Void> deactivationAccountById(@PathVariable String id) {
-        accountService.deactivationById(id);
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.deact-account}")
+    public ResultResponse<Void> deactivationById(@PathVariable String id) {
+        accountService.deactivationById( id );
+        return ResultResponse.<Void>builder()
+            .header( ResultResponse.Header.builder()
+                .isSuccessful( true )
+                .resultCode( HttpStatus.OK.value() )
+                .resultMessage( apiMessageProperties.getDeactSuccMessage() )
+                .build() )
+            .build();
     }
 
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.deact-account-by-email}")
-    public ResultResponse<Void> deactivationAccountByEmail(@PathVariable String email) {
-        accountService.deactivationByEmail(email);
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
-    }
-
-    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.deact-accounts-by-all}")
-    public ResultResponse<Void> deactivationAllAccountByList() {
-        List<AccountDto> accounts = accountService.findAll();
-        accountService.deactivationAllByAccounts(accounts);
-        return ResultResponse.<Void>builder().header(
-            ResultResponse.Header.builder().isSuccessful(true).resultCode(200)
-                .resultMessage("Account "+messageProperties.getDeactSuccMessage()).build()).build();
-    }
 
 }

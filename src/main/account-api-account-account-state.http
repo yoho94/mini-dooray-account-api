@@ -4,7 +4,7 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "idOrEmail": "exampleID",
+  "accountId": "exampleID",
   "accountStateCode": "04"
 }
 
@@ -23,17 +23,11 @@ GET /account-api/account-account-state/list/state/01 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT ID AND ACCOUNT STATE CODE
-DELETE /account-api/account-account-state/delete/account/exampleID2/state/01 HTTP/1.1
+### READ ALL BY ACCOUNT
+
+GET /account-api/account-account-state/list/exampleID HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
-### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT ID
-DELETE /account-api/account-account-state/delete/account/exampleID2 HTTP/1.1
-Host: localhost:8080
-Content-Type: application/json
 
-### DELETE ALL ACCOUNT ACCOUNT STATE BY ACCOUNT STATE CODE
-DELETE /account-api/account-account-state/delete/state/04 HTTP/1.1
-Host: localhost:8080
-Content-Type: application/json
+

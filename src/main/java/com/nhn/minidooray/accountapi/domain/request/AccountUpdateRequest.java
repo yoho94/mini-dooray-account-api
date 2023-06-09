@@ -1,19 +1,17 @@
 package com.nhn.minidooray.accountapi.domain.request;
 
-import javax.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
 import javax.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class AccountStateCreateRequest {
+public class AccountUpdateRequest {
 
-    @NotEmpty
-    @Size(max = 2)
-    private String code;
-    @NotEmpty
     private String name;
+    @Size(min = 8, max = 200)
 
-
+    private String password;
+    private LocalDateTime lastLoginAt;
 }

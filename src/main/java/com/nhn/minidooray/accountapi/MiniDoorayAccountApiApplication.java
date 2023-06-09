@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 public class MiniDoorayAccountApiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MiniDoorayAccountApiApplication.class, args);
+        SpringApplication.run( MiniDoorayAccountApiApplication.class, args );
     }
 
 }

@@ -10,27 +10,27 @@ public class CamelCaseToUnderscoresUppercaseNamingStrategy extends
 
     @Override
     public Identifier toPhysicalCatalogName(Identifier name, JdbcEnvironment jdbcEnvironment) {
-        return toUppercase(super.toPhysicalCatalogName(name, jdbcEnvironment));
+        return toUppercase( super.toPhysicalCatalogName( name, jdbcEnvironment ) );
     }
 
     @Override
     public Identifier toPhysicalSchemaName(Identifier name, JdbcEnvironment jdbcEnvironment) {
-        return toUppercase(super.toPhysicalSchemaName(name, jdbcEnvironment));
+        return toUppercase( super.toPhysicalSchemaName( name, jdbcEnvironment ) );
     }
 
     @Override
     public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment jdbcEnvironment) {
-        return toUppercase(super.toPhysicalTableName(name, jdbcEnvironment));
+        return toUppercase( super.toPhysicalTableName( name, jdbcEnvironment ) );
     }
 
     @Override
     public Identifier toPhysicalSequenceName(Identifier name, JdbcEnvironment jdbcEnvironment) {
-        return toUppercase(super.toPhysicalSequenceName(name, jdbcEnvironment));
+        return toUppercase( super.toPhysicalSequenceName( name, jdbcEnvironment ) );
     }
 
     @Override
     public Identifier toPhysicalColumnName(Identifier name, JdbcEnvironment jdbcEnvironment) {
-        return toUppercase(super.toPhysicalColumnName(name, jdbcEnvironment));
+        return toUppercase( super.toPhysicalColumnName( name, jdbcEnvironment ) );
     }
 
     private Identifier toUppercase(Identifier name) {
@@ -38,6 +38,6 @@ public class CamelCaseToUnderscoresUppercaseNamingStrategy extends
             return null;
         }
 
-        return new Identifier(name.getText().toUpperCase(), name.isQuoted());
+        return new Identifier( name.getText().toUpperCase(), name.isQuoted() );
     }
 }

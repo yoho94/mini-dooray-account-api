@@ -2,21 +2,17 @@ package com.nhn.minidooray.accountapi.domain.request;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@EqualsAndHashCode
-@Generated
+@Data
+@Builder
 public class AccountAccountCreateRequest {
 
     // accountId -> idOrEmail
     @NotEmpty
     @Size(min = 5, max = 100)
-    private String idOrEmail;
+    private String accountId;
     @NotEmpty
     @Size(max = 2)
     private String accountStateCode;

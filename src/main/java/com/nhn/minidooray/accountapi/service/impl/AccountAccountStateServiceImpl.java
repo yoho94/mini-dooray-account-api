@@ -1,27 +1,28 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountWithStateByAccountResponse;
+import com.nhn.minidooray.accountapi.domain.response.CommonAccountWithStateResponse;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
-import com.nhn.minidooray.accountapi.exception.AccountWithStateNotFoundException;
+import com.nhn.minidooray.accountapi.entity.AccountEntity;
+import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
+import com.nhn.minidooray.accountapi.exception.NotFoundException;
 import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
-import com.nhn.minidooray.accountapi.exception.ReferencedColumnException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import com.nhn.minidooray.accountapi.repository.AccountStateRepository;
 import com.nhn.minidooray.accountapi.service.AccountAccountStateService;
 import com.nhn.minidooray.accountapi.util.IdOrEmailUtills;
 import java.time.LocalDateTime;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AccountAccountStateServiceImpl implements AccountAccountStateService {
 
     private final AccountAccountStateRepository accountAccountStateRepository;
@@ -30,88 +31,104 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
 
 
     @Override
-    public AccountAccountStateDto save(AccountAccountCreateRequest accountAccountCreateRequest) {
-        String idOrEmail = accountAccountCreateRequest.getIdOrEmail();
-        String accountStateCode = accountAccountCreateRequest.getAccountStateCode();
-
-        if (!IdOrEmailUtills.checkId(idOrEmail)) {
-            throw new InvalidIdFormatException();
+    @Transactional
+    public void create(String accountId, String stateCode) {
+        if (!IdOrEmailUtills.checkId( accountId )) {
+            throw new InvalidIdFormatException( accountId );
         }
+        AccountEntity account = accountRepository.findById( accountId )
+            .orElseThrow( () -> new NotFoundException( accountId ) );
 
-        AccountAccountStateDto accountAccountStateDto = convertToDto(accountAccountCreateRequest);
+        AccountStateEntity state = accountStateRepository.findById( stateCode )
+            .orElseThrow( () -> new NotFoundException( stateCode ) );
 
-        AccountAccountStateEntity entity = convertToEntity(accountAccountStateDto);
+        AccountAccountStateEntity accountAccountStateEntity = AccountAccountStateEntity.builder()
+            .accountState( state )
+            .account( account )
+            .pk( Pk.builder().accountStateCode( state.getCode() ).accountId( account.getId() )
+                .changeAt( LocalDateTime.now() ).build() )
+            .build();
 
-        entity.setAccount(accountRepository.getReferenceById(idOrEmail));
-        entity.setAccountState(accountStateRepository.getReferenceById(accountStateCode));
-
-        if (entity.getAccountState() == null) {
-            throw new ReferencedColumnException(accountAccountCreateRequest.
-                getAccountStateCode());
-        }
-        if (entity.getAccount() == null) {
-            throw new ReferencedColumnException(accountAccountCreateRequest
-                .getIdOrEmail());
-        }
-
-        return convertToDto(accountAccountStateRepository.save(entity));
+        accountAccountStateRepository.save( accountAccountStateEntity );
     }
 
     @Override
-    public AccountAccountStateDto update(AccountAccountStateDto accountAccountStateDto) {
-        if (!accountAccountStateRepository.existsById(convertToPk(accountAccountStateDto))) {
-            throw new AccountWithStateNotFoundException();
+    @Transactional
+    public AccountWithStateByAccountResponse getByAccount(String accountId) {
+        List<CommonAccountWithStateResponse> lists = accountAccountStateRepository.findAllByAccount_IdOrderByPk_ChangeAt(
+                accountId )
+            .stream()
+            .map( (entity) -> CommonAccountWithStateResponse.builder()
+                .stateCode( entity.getPk().getAccountStateCode() )
+                .accountId( entity.getPk().getAccountId() )
+                .changeAt( entity.getPk().getChangeAt() )
+                .build() )
+            .collect( Collectors.toList() );
+        if (lists.isEmpty()) {
+            throw new NotFoundException(accountId);
         }
-        return convertToDto(
-            accountAccountStateRepository.save(convertToEntity(accountAccountStateDto)));
+        return AccountWithStateByAccountResponse.builder()
+            .accountId( accountId )
+            .changes( lists )
+            .build();
 
     }
 
     @Override
-    public List<AccountAccountStateDto> findAllByAccountIdAndAccountStateCode(String accountId,
+    public List<CommonAccountWithStateResponse> getAllByAccountIdAndAccountStateCode(String accountId,
         String accountStateCode) {
         List<AccountAccountStateEntity> entities = accountAccountStateRepository.findAllByAccount_IdAndAccountState_Code(
-            accountId, accountStateCode);
+            accountId, accountStateCode );
 
         if (entities.isEmpty()) {
-            throw new AccountWithStateNotFoundException();
+            throw new NotFoundException(accountId+" , "+accountStateCode);
         }
-
         return entities.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
+            .map( (entity) -> CommonAccountWithStateResponse.builder()
+                .stateCode( entity.getPk().getAccountStateCode() )
+                .accountId( entity.getPk().getAccountId() )
+                .changeAt( entity.getPk().getChangeAt() )
+                .build() )
+            .collect( Collectors.toList() );
     }
 
     @Override
-    public List<AccountAccountStateDto> findAll() {
+    public List<CommonAccountWithStateResponse> getAll() {
 
         return accountAccountStateRepository
             .findAll()
             .stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
+            .map( (entity) -> CommonAccountWithStateResponse.builder()
+                .stateCode( entity.getPk().getAccountStateCode() )
+                .accountId( entity.getPk().getAccountId() )
+                .changeAt( entity.getPk().getChangeAt() )
+                .build() )
+            .collect( Collectors.toList() );
     }
 
     @Override
-    public List<AccountAccountStateDto> findAllByAccountStateCode(String accountStateCode) {
+    public List<CommonAccountWithStateResponse> getByAccountStateCode(String accountStateCode) {
         List<AccountAccountStateEntity> exists = accountAccountStateRepository.findAllByAccountStateCode(
-            accountStateCode);
+            accountStateCode );
         if (exists.isEmpty()) {
-            throw new AccountWithStateNotFoundException();
+            throw new NotFoundException(accountStateCode);
         }
         return exists
             .stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
+            .map( (entity) -> CommonAccountWithStateResponse.builder()
+                .stateCode( entity.getPk().getAccountStateCode() )
+                .accountId( entity.getPk().getAccountId() )
+                .changeAt( entity.getPk().getChangeAt() )
+                .build() )
+            .collect( Collectors.toList() );
     }
 
     @Override
-    public void delete(AccountAccountStateDto accountAccountStateDto) {
-        AccountAccountStateEntity.Pk pk = convertToPk(accountAccountStateDto);
-        if (!accountAccountStateRepository.existsById(pk)) {
-            throw new AccountWithStateNotFoundException();
+    public void deleteAccountStateById(Pk pk) {
+        if (!accountAccountStateRepository.existsById( pk )) {
+            throw new NotFoundException(pk.toString());
         }
-        accountAccountStateRepository.delete(convertToEntity(accountAccountStateDto));
+        accountAccountStateRepository.deleteById( pk );
 
 
     }
@@ -119,78 +136,37 @@ public class AccountAccountStateServiceImpl implements AccountAccountStateServic
     @Override
     public void deleteAllByAccountIdAndAccountStateCode(String accountId, String accountStateCode) {
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_IdAndAccountState_Code(
-            accountId, accountStateCode);
+            accountId, accountStateCode );
 
         if (existed.isEmpty()) {
-            throw new AccountWithStateNotFoundException();
+            throw new NotFoundException(accountId+" , "+accountStateCode);
 
         }
-        accountAccountStateRepository.deleteAll(existed);
+        accountAccountStateRepository.deleteAll( existed );
     }
 
     @Override
     public void deleteAllByAccountId(String accountId) {
-        List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_Id(
-            accountId);
+        List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccount_IdOrderByPk_ChangeAt(
+            accountId );
 
         if (existed.isEmpty()) {
-            throw new AccountWithStateNotFoundException();
+            throw new NotFoundException(accountId);
         }
-        accountAccountStateRepository.deleteAll(existed);
+        accountAccountStateRepository.deleteAll( existed );
     }
 
     @Override
-    public void deleteAllByAccountStateCode(String accountStateCode) {
+    public void deleteAllByStateCode(String accountStateCode) {
         List<AccountAccountStateEntity> existed = accountAccountStateRepository.findAllByAccountStateCode(
-            accountStateCode);
+            accountStateCode );
 
         if (existed.isEmpty()) {
-            throw new AccountWithStateNotFoundException();
+            throw new NotFoundException(accountStateCode);
         }
 
-        accountAccountStateRepository.deleteAll(existed);
+        accountAccountStateRepository.deleteAll( existed );
 
-    }
-
-    private AccountAccountStateDto convertToDto(
-        AccountAccountStateEntity accountAccountStateEntity) {
-        return AccountAccountStateDto
-            .builder()
-            .accountId(accountAccountStateEntity.getPk().getAccountId())
-            .accountStateCode(accountAccountStateEntity.getPk().getAccountStateCode())
-            .changeAt(accountAccountStateEntity.getPk().getChangeAt())
-            .build();
-    }
-
-    private AccountAccountStateDto convertToDto(
-        AccountAccountCreateRequest accountAccountCreateRequest) {
-        return AccountAccountStateDto
-            .builder()
-            .accountId(accountAccountCreateRequest.getIdOrEmail())
-            .accountStateCode(accountAccountCreateRequest.getAccountStateCode())
-            .changeAt(LocalDateTime.now())
-            .build();
-    }
-
-    private AccountAccountStateEntity convertToEntity(
-        AccountAccountStateDto accountAccountStateDto) {
-        return AccountAccountStateEntity.builder()
-            .pk(Pk.builder()
-                .accountId(accountAccountStateDto.getAccountId())
-                .accountStateCode(accountAccountStateDto.getAccountStateCode())
-                .changeAt(accountAccountStateDto.getChangeAt()).build())
-            .build();
-    }
-
-
-    private AccountAccountStateEntity.Pk convertToPk(
-        AccountAccountStateDto accountAccountStateDto) {
-        return AccountAccountStateEntity.Pk
-            .builder()
-            .accountId(accountAccountStateDto.getAccountId())
-            .accountStateCode(accountAccountStateDto.getAccountStateCode())
-            .changeAt(accountAccountStateDto.getChangeAt())
-            .build();
     }
 
 

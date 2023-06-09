@@ -1,17 +1,14 @@
 package com.nhn.minidooray.accountapi.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
-
+@Getter
 public class ApiException extends RuntimeException {
 
-    private final HttpStatus status;
+    private final int statusCode;
 
-    public ApiException(String message, HttpStatus status) {
-        super("error." + message);
-        this.status = status;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
+    public ApiException(String message, int statusCode) {
+        super(message);
+        this.statusCode = statusCode;
     }
 }

@@ -8,15 +8,6 @@ Content-Type: application/json
     "name": "STATE_NAME, 삭제해주세요"
 }
 
-### UPDATE ACCOUNT_STATE
-PUT /account-api/state/update HTTP/1.1
-Host: localhost:8080
-Content-Type: application/json
-
-{
-  "code": "05",
-  "name": "수정된 STATE_NAME, 삭제해주세요"
-}
 
 ### READ ACCOUNT_STATE BY CODE
 GET /account-api/state/05 HTTP/1.1

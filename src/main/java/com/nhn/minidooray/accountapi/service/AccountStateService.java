@@ -1,24 +1,24 @@
 package com.nhn.minidooray.accountapi.service;
 
-import com.nhn.minidooray.accountapi.domain.dto.AccountStateDto;
-
 import com.nhn.minidooray.accountapi.domain.request.AccountStateCreateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountStateResponse;
 import java.util.List;
 
 
 public interface AccountStateService {
 
-    AccountStateDto save(AccountStateCreateRequest accountStateCreateRequest);
 
-    AccountStateDto update(AccountStateCreateRequest accountStateCreateRequest);
+    String create(AccountStateCreateRequest accountStateCreateRequest);
 
-    AccountStateDto findByCode(String code);
 
-    List<AccountStateDto> findAll();
+    String find(String code);
 
-    void delete(AccountStateDto accountStateDto);
 
-    void deleteByCode(String code);
+    List<AccountStateResponse> getAll();
+
+    AccountStateResponse get(String code);
+
+    void delete(String code);
 
     void deleteAll();
 

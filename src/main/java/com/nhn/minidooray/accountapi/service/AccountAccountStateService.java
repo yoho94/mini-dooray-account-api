@@ -1,32 +1,35 @@
 package com.nhn.minidooray.accountapi.service;
 
-import com.nhn.minidooray.accountapi.domain.dto.AccountAccountStateDto;
-import com.nhn.minidooray.accountapi.domain.request.AccountAccountCreateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountWithStateByAccountResponse;
+import com.nhn.minidooray.accountapi.domain.response.CommonAccountWithStateResponse;
+import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 
 public interface AccountAccountStateService {
 
-    AccountAccountStateDto save(AccountAccountCreateRequest accountAccountCreateRequest);
 
-    AccountAccountStateDto update(AccountAccountStateDto accountAccountStateDto);
+    void create(String accountId, String stateCode);
 
-    List<AccountAccountStateDto> findAllByAccountIdAndAccountStateCode(String accountId,
-        String accountStateCode);
+    @Transactional
+    AccountWithStateByAccountResponse getByAccount(String accountId);
 
-    List<AccountAccountStateDto> findAll();
+    List<CommonAccountWithStateResponse> getAllByAccountIdAndAccountStateCode(String accountId,
+        String stateCode);
 
-    List<AccountAccountStateDto> findAllByAccountStateCode(String accountStateCode);
+    List<CommonAccountWithStateResponse> getAll();
 
-    void delete(AccountAccountStateDto accountAccountStateDto);
+    List<CommonAccountWithStateResponse> getByAccountStateCode(String stateCode);
 
+    void deleteAccountStateById(Pk pk);
 
-    void deleteAllByAccountIdAndAccountStateCode(String accountId, String accountStateCode);
+    void deleteAllByAccountIdAndAccountStateCode(String accountId, String stateCode);
 
 
     void deleteAllByAccountId(String accountId);
 
-    void deleteAllByAccountStateCode(String accountStateCode);
+    void deleteAllByStateCode(String stateCode);
 
 
 }
