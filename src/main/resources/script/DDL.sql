@@ -6,12 +6,13 @@ USE nhn_academy_15;
 CREATE TABLE IF NOT EXISTS `nhn_academy_15`.`ACCOUNT`
 (
     `ID`            VARCHAR(40)  NOT NULL,
-    `PASSWORD`      VARCHAR(60) NOT NULL,
+    `PASSWORD`      VARCHAR(60)  NOT NULL,
     `NAME`          VARCHAR(20)  NOT NULL,
     `EMAIL`         VARCHAR(100) NOT NULL,
     `LAST_LOGIN_AT` DATETIME     NULL,
     `CREATE_AT`     DATETIME     NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (`ID`)
+    PRIMARY KEY (`ID`),
+    UNIQUE KEY `EMAIL` (`EMAIL`)
 )
     ENGINE = InnoDB;
 
