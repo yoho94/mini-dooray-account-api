@@ -7,12 +7,11 @@ import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 import com.nhn.minidooray.accountapi.exception.InvalidEmailFormatException;
 import com.nhn.minidooray.accountapi.exception.InvalidIdFormatException;
-import com.nhn.minidooray.accountapi.exception.RequestInvalidException;
+import com.nhn.minidooray.accountapi.exception.InvalidRequestException;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -41,7 +40,7 @@ class AccountServiceImplTest {
         AccountCreateRequest request = createAccountCreateRequest("testUserId","testUserPassword","testUserEmail@email.com","testUserName");
 
         accountService.create(request);
-        assertEquals("testUserId", accountService.find("testUserId"));
+        assertEquals("testUserId", accountService.get("testUserId").getId());
 
 
     }
@@ -65,7 +64,7 @@ class AccountServiceImplTest {
     @Test
     void updateAccountNameThrow() {
         AccountUpdateRequest nameUpdateRequest= createAccountUpdateRequest("updateUserName","1234",null);
-        assertThrows( RequestInvalidException.class, () -> accountService.updateName("testUserId",nameUpdateRequest));
+        assertThrows( InvalidRequestException.class, () -> accountService.updateName("testUserId",nameUpdateRequest));
     }
 
     @Test
@@ -77,7 +76,7 @@ class AccountServiceImplTest {
     @Test
     void updateAccountPasswordThrow() {
         AccountUpdateRequest passwordUpdateRequest= createAccountUpdateRequest("updateUserName","1234",null);
-        assertThrows( RequestInvalidException.class, () -> accountService.updateName("testUserId",passwordUpdateRequest));
+        assertThrows( InvalidRequestException.class, () -> accountService.updateName("testUserId",passwordUpdateRequest));
     }
     @Test
     void getTopByIdWithChangeAt() {
@@ -86,16 +85,11 @@ class AccountServiceImplTest {
        assertEquals( "01", accountService.getTopByIdWithChangeAt( "getTopById" ).getAccountWithState().getStateCode());
     }
 
-    @Test
-    void findById() {
-        String id = accountService.find("testUserId");
-        assertEquals("testUserId", id);
-    }
 
     @Test
     void findByEmail() {
-        String id = accountService.findByEmail("testUserEmail@email.com");
-        assertEquals("testUserId", id);
+        AccountResponse response = accountService.findByEmail("testUserEmail@email.com");
+        assertEquals("testUserId", response.getId());
     }
 
     @Test
@@ -108,46 +102,9 @@ class AccountServiceImplTest {
       assertNotNull( updatedEntity.getLastLoginAt());
     }
 
-    @Test
-    void getAllAccounts() {
-        accountService.create( createAccountCreateRequest( "updateloginAt","updateloginAtpassword","updateloginAt@email.com","updateloginAt" ) );
-        accountService.create( createAccountCreateRequest( "getTopById","getTopByIdPassword","getTopById@email.com","getTopBy" ) );
-
-        assertEquals(accountService.getAll().size(), 3);
-    }
-
-    @Test
-    @Transactional
-    void deactivationById() {
-        try {
-            Thread.sleep( 1000 );
-        } catch (InterruptedException e) {
-            throw new RuntimeException( e );
-        }
-        accountService.deactivationById( "testUserId" );
 
 
-        assertEquals( "02", accountService.getTopByIdWithChangeAt( "testUserId" ).getAccountWithState().getStateCode());
-    }
 
-    @Test
-    void deactivationAllByAccounts() {
-        String id1 = accountService.create( createAccountCreateRequest( "updateloginAt","updateloginAtpassword","updateloginAt@email.com","updateloginAt" ) );
-        String id2 = accountService.create( createAccountCreateRequest( "getTopById","getTopByIdPassword","getTopById@email.com","getTopBy" ) );
-        try {
-            Thread.sleep( 1000 );
-        } catch (InterruptedException e) {
-            throw new RuntimeException( e );
-        }
-
-       List<String> accountIds = List.of(id1,id2);
-        accountService.deactivationAllByAccounts( accountIds );
-
-        assertEquals( "02", accountService.getTopByIdWithChangeAt( id1 ).getAccountWithState().getStateCode());
-        assertEquals( "02", accountService.getTopByIdWithChangeAt( id2 ).getAccountWithState().getStateCode());
-
-
-    }
 
     private AccountCreateRequest createAccountCreateRequest(String id, String password,
         String email, String name) {

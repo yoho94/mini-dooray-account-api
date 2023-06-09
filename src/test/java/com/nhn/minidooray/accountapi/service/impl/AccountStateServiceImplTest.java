@@ -2,14 +2,11 @@ package com.nhn.minidooray.accountapi.service.impl;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountStateCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
-import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
-import com.nhn.minidooray.accountapi.entity.AccountStateEntity;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,27 +69,9 @@ class AccountStateServiceImplTest {
             .build();
     }
 
-    private AccountStateEntity createAccountStateEntity(String code, String name,
-        LocalDateTime createAt) {
-        return AccountStateEntity.builder()
-            .code(code)
-            .name(name)
-            .createAt(createAt)
-            .build();
-    }
 
-    private AccountAccountStateEntity createAccountAccountStateEntity(
-        AccountStateEntity accountState, AccountEntity account, LocalDateTime changeAt) {
-        return AccountAccountStateEntity.builder()
-            .accountState(accountState)
-            .account(account)
-            .pk( Pk.builder()
-                .accountId(account.getId())
-                .accountStateCode(accountState.getCode())
-                .changeAt(changeAt)
-                .build())
-            .build();
-    }
+
+
     private AccountStateCreateRequest createAccountStateCreateRequest(String code, String name) {
         return AccountStateCreateRequest.builder()
             .code(code)
@@ -123,4 +102,27 @@ class AccountStateServiceImplTest {
         return accountUpdateNameRequest;
     }
 
+    @Test
+    void create() {
+    }
+
+    @Test
+    void getAll() {
+    }
+
+    @Test
+    void find() {
+    }
+
+    @Test
+    void get() {
+    }
+
+    @Test
+    void delete() {
+    }
+
+    @Test
+    void deleteAll() {
+    }
 }

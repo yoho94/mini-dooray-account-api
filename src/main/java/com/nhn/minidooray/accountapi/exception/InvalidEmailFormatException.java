@@ -1,7 +1,5 @@
 package com.nhn.minidooray.accountapi.exception;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 
 public class InvalidEmailFormatException extends ApiException {

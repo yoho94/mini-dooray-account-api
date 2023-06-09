@@ -37,11 +37,6 @@ public class AccountAccountStateEntity {
     @ManyToOne
     @JoinColumn(name = "ACCOUNT_ID", referencedColumnName = "ID", nullable = false)
     private AccountEntity account;
-    @MapsId("accountStateCode")
-    @ManyToOne
-    @JoinColumn(name = "ACCOUNT_STATE_CODE", referencedColumnName = "CODE", nullable = false)
-    private AccountStateEntity accountState;
-
     @Embeddable
     @Getter
     @Setter

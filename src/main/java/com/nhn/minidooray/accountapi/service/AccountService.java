@@ -3,35 +3,27 @@ package com.nhn.minidooray.accountapi.service;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
-import com.nhn.minidooray.accountapi.domain.response.AccountWithStateResponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 public interface AccountService {
 
-    String create(AccountCreateRequest accountCreateRequest);
+    void create(AccountCreateRequest accountCreateRequest);
 
-    String updateName(String id, AccountUpdateRequest accountUpdateNameRequest);
+    void updateName(String id, AccountUpdateRequest accountUpdateNameRequest);
 
-    String updatePassword(String id,
+    void updatePassword(String id,
         AccountUpdateRequest accountUpdatePasswordRequest);
-
-    AccountWithStateResponse getTopByIdWithChangeAt(String id);
-
-    String find(String id);
-
-    String findByEmail(String email);
-
 
     void updateByLastLoginAt(String id);
 
+    AccountResponse findByEmail(String email);
+
     AccountResponse get(String id);
 
-    List<AccountResponse> getAll();
-
-    void deactivationById(String id);
-
-    void deactivationAllByAccounts(List<String> accountIds);
+    Page<AccountResponse> getAll(Pageable pageable);
 
 
 }

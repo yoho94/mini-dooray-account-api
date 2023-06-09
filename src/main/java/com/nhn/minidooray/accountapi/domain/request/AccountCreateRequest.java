@@ -14,7 +14,7 @@ public class AccountCreateRequest {
     @Size(min = 5, max = 40)
     private String id;
     @NotEmpty
-    @Size(min = 8, max = 200)
+    @Size(min = 60, max = 60)
     private String password;
     @NotEmpty
     @Size(min = 5, max = 100)

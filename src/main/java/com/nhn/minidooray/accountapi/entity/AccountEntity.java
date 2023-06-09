@@ -27,9 +27,9 @@ public class AccountEntity implements Updatable<AccountUpdateRequest> {
     @Id
     @Size(min = 5, max = 40)
     private String id;
-    @Size(min = 8, max = 200)
+    @Size(min = 60, max = 60)
     private String password;
-    @Size(min = 1, max = 20)
+    @Size( max = 20)
     private String name;
     @Size(min = 5, max = 100)
     private String email;
@@ -51,17 +51,14 @@ public class AccountEntity implements Updatable<AccountUpdateRequest> {
 
     @Override
     public void update(AccountUpdateRequest accountUpdateRequest) {
-        String name = accountUpdateRequest.getName();
-        String password = accountUpdateRequest.getPassword();
-        LocalDateTime lastLoginAt = accountUpdateRequest.getLastLoginAt();
-        if (name != null) {
-            this.name = name;
+        if (accountUpdateRequest.getName() != null) {
+            this.name = accountUpdateRequest.getName();
         }
-        if (password != null) {
-            this.password = password;
+        if (accountUpdateRequest.getPassword() != null) {
+            this.password = accountUpdateRequest.getPassword();
         }
-        if (lastLoginAt != null) {
-            this.lastLoginAt = lastLoginAt;
+        if (accountUpdateRequest.getLastLoginAt() != null) {
+            this.lastLoginAt = accountUpdateRequest.getLastLoginAt();
         }
 
     }
