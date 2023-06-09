@@ -214,7 +214,7 @@ GET /account-api/accounts/email/{email}
 
  *PUT /account-api/accounts/update/{id}/name*</br>
  *PUT /account-api/accounts/update/{id}/password*</br>
-  *PUT /account-api/login/{id}*</br>
+  *GET /account-api/login/{id}*</br>
 
 
 - 회원 상태 변경이 아닌, 회원 정보 변경만 처리
