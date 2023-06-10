@@ -1,18 +1,14 @@
 package com.nhn.minidooray.accountapi.entity;
 
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
-import java.time.LocalDateTime;
+import lombok.*;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Generated;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -27,9 +23,9 @@ public class AccountEntity implements Updatable<AccountUpdateRequest> {
     @Id
     @Size(min = 5, max = 40)
     private String id;
-    @Size(min = 60, max = 60)
+    @Size(max = 60)
     private String password;
-    @Size( max = 20)
+    @Size(max = 20)
     private String name;
     @Size(min = 5, max = 100)
     private String email;
@@ -59,6 +55,9 @@ public class AccountEntity implements Updatable<AccountUpdateRequest> {
         }
         if (accountUpdateRequest.getLastLoginAt() != null) {
             this.lastLoginAt = accountUpdateRequest.getLastLoginAt();
+        }
+        if (accountUpdateRequest.getEmail() != null) {
+            this.email = accountUpdateRequest.getEmail();
         }
 
     }

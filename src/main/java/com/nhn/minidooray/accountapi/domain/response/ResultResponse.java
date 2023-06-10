@@ -1,24 +1,21 @@
 package com.nhn.minidooray.accountapi.domain.response;
 
-import java.util.Collection;
-import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
 public class ResultResponse<T> {
 
     private Header header;
-    private T result;
+    private List<T> result;
 
     public long getTotalCount() {
-        if (result instanceof Collection<?>) {
-            return ((Collection<?>) result).size();
-        } else {
-            return result == null ? 0 : 1;
-        }
+        return result == null ? 0 : result.size();
     }
 
     @Getter

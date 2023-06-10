@@ -80,14 +80,14 @@ GET /account-api/accounts?page={page}&size={numOfRows}
       "name": "name",
       "email": "email@email.com",
       "lastLoginAt": "2023-06-07T14:56:59",
-      "createdAt": "2023-06-07T14:56:32"
+      "createAt": "2023-06-07T14:56:32"
     },
     {
       "id": "id",
       "name": "name",
       "email": "email@email.com",
       "lastLoginAt": "2023-06-07T14:56:59",
-      "createdAt": "2023-06-07T14:56:32"
+      "createAt": "2023-06-07T14:56:32"
     }
   ],
   "totalCount": 2
@@ -138,7 +138,7 @@ GET /account-api/accounts/email/{email}
     "name": "name",
     "email": "email@email.com",
     "lastLoginAt": null,
-    "createdAt": "2023-06-09T07:02:40"
+    "createAt": "2023-06-09T07:02:40"
   },
   "totalCount": 1
 }
