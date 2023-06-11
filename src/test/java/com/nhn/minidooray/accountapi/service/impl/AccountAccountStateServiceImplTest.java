@@ -102,7 +102,6 @@ class AccountAccountStateServiceImplTest {
 
     @Test
     void getByAccount_ValidId_ReturnsExpectedResults() {
-        // Arrange
         String accountId = "testId";
         Pageable pageable = PageRequest.of(0, 5);
 

@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountApiController {
 
     private final AccountService accountService;
-    private final ApiMessageProperties apiMessageProperties;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("${com.nhn.minidooray.accountapi.requestmapping.account.create-account}")
