@@ -4,14 +4,14 @@ Host: localhost:8080
 Content-Type: application/json
 
 {
-  "id": "exampleID110",
-  "password": "securePassword10",
-  "email": "example110@email.com",
-  "name": "Example10 Name"
+  "id": "exampleID13",
+  "password": "securePassword13",
+  "email": "example130@email.com",
+  "name": "Example13 Name"
 }
 
 ### UPDATE LAST LOGIN AT
-GET /account-api/login/exampleID HTTP/1.1
+GET /account-api/login/exampleID10 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 
@@ -24,7 +24,7 @@ Content-Type: application/json
 
 
 ### READ ACCOUNT BY ID
-GET /account-api/accounts/exampleID10 HTTP/1.1
+GET /account-api/accounts/exampleID HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 

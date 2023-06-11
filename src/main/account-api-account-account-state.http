@@ -10,7 +10,7 @@ Content-Type: application/json
 
 ### READ ALL BY ACCOUNT
 
-GET /account-api/account-account-state/exampleID/list?page=0&size=5 HTTP/1.1
+GET /account-api/account-account-state/exampleID/list?page=0&size=3 HTTP/1.1
 Host: localhost:8080
 Content-Type: application/json
 

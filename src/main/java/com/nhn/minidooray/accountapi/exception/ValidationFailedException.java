@@ -4,8 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
 import java.util.stream.Collectors;
-
+import org.springframework.web.bind.annotation.ResponseStatus;
 public class ValidationFailedException extends ApiException {
+
 
     public ValidationFailedException(BindingResult bindingResult) {
         super(bindingResult.getFieldErrors().stream()
