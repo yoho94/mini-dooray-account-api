@@ -1,14 +1,18 @@
 package com.nhn.minidooray.accountapi.entity;
 
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
-import lombok.*;
-
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Generated;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Entity

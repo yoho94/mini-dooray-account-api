@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 @Builder
 public class CommonResponse {
+
     private String id;
 }

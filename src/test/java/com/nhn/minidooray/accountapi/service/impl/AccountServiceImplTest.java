@@ -1,7 +1,6 @@
 package com.nhn.minidooray.accountapi.service.impl;
 
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,7 +11,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nhn.minidooray.accountapi.config.ValidationProperties.Account;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStateType;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
@@ -29,7 +27,6 @@ import com.nhn.minidooray.accountapi.exception.NotFoundException;
 import com.nhn.minidooray.accountapi.repository.AccountAccountStateRepository;
 import com.nhn.minidooray.accountapi.repository.AccountRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -58,7 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class AccountServiceImplTest {
 
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger( this.getClass() );
     @Mock
     AccountRepository accountRepository;
     @Mock
@@ -72,21 +64,6 @@ class AccountServiceImplTest {
         String name = "normalName";
         String password = "normalPassword";
         String email = "normalEmail@email.com";
-
-        AccountEntity mockAccountEntity = AccountEntity.builder()
-            .id( id[0] )
-            .name( name )
-            .email( email )
-            .password( password )
-            .build();
-        AccountAccountStateEntity mockAccountAccountStateEntity = AccountAccountStateEntity.builder()
-            .account( mockAccountEntity )
-            .pk( Pk.builder()
-                .accountId( id[0] )
-                .accountStateCode( AccountStateType.REGISTER.getCode() )
-                .changeAt( LocalDateTime.now() )
-                .build() )
-            .build();
 
 
     }
@@ -120,7 +97,6 @@ class AccountServiceImplTest {
                 .changeAt( LocalDateTime.now() )
                 .build() )
             .build();
-
         when( accountRepository.save( any( AccountEntity.class ) ) ).thenReturn(
             mockAccountEntity );
         when( accountAccountStateRepository.save(
@@ -160,7 +136,6 @@ class AccountServiceImplTest {
         String id = "normalId";
         String name = "normalName";
         String password = "normalPassword";
-        String email = "normalEmail@email.com";
 
         AccountCreateRequest invalidEmailRequest = AccountCreateRequest.builder()
             .id( id )
@@ -357,7 +332,6 @@ class AccountServiceImplTest {
     @Test
     void findByEmailThrowsNotFoundException() {
         String email = "nonExistentEmail@email.com";
-        String id = "nonExistentId";
 
         when( accountRepository.findByEmail( email ) ).thenReturn( Optional.empty() );
 
@@ -397,40 +371,41 @@ class AccountServiceImplTest {
         String name = "normalName";
 
         AccountEntity mockAccountEntity = AccountEntity.builder()
-            .id(id)
-            .name(name)
-            .password(password)
-            .email(email)
+            .id( id )
+            .name( name )
+            .password( password )
+            .email( email )
             .build();
 
         AccountAccountStateEntity mockAccountStateEntity = AccountAccountStateEntity.builder()
-            .account(mockAccountEntity)
-            .pk(Pk.builder()
-                .accountId(id)
-                .accountStateCode(AccountStateType.REGISTER.getCode())
-                .changeAt(LocalDateTime.now())
-                .build())
+            .account( mockAccountEntity )
+            .pk( Pk.builder()
+                .accountId( id )
+                .accountStateCode( AccountStateType.REGISTER.getCode() )
+                .changeAt( LocalDateTime.now() )
+                .build() )
             .build();
 
-        when(accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(id))
-            .thenReturn(Optional.of(mockAccountStateEntity));
+        when( accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc( id ) )
+            .thenReturn( Optional.of( mockAccountStateEntity ) );
 
-        AccountResponse result = accountService.get(id);
+        AccountResponse result = accountService.get( id );
 
-        assertEquals(id, result.getId());
-        assertEquals(name, result.getName());
-        assertEquals(email, result.getEmail());
-        assertEquals(AccountStateType.REGISTER.getCode(), result.getAccountStateCode());
+        assertEquals( id, result.getId() );
+        assertEquals( name, result.getName() );
+        assertEquals( email, result.getEmail() );
+        assertEquals( AccountStateType.REGISTER.getCode(), result.getAccountStateCode() );
     }
 
     @Test
     void getThrowsNotFoundException() {
         String nonExistentId = "nonExistentId";
 
-        when(accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(nonExistentId))
-            .thenReturn(Optional.empty());
+        when( accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
+            nonExistentId ) )
+            .thenReturn( Optional.empty() );
 
-        assertThrows(NotFoundException.class, () -> accountService.get(nonExistentId));
+        assertThrows( NotFoundException.class, () -> accountService.get( nonExistentId ) );
     }
 
 
@@ -442,35 +417,36 @@ class AccountServiceImplTest {
         String name = "normalName";
 
         AccountEntity mockAccountEntity = AccountEntity.builder()
-            .id(id)
-            .name(name)
-            .password(password)
-            .email(email)
+            .id( id )
+            .name( name )
+            .password( password )
+            .email( email )
             .build();
 
-        Page<AccountEntity> mockPage = new PageImpl<>(List.of(mockAccountEntity));
+        Page<AccountEntity> mockPage = new PageImpl<>( List.of( mockAccountEntity ) );
 
-        when(accountRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
+        when( accountRepository.findAll( any( Pageable.class ) ) ).thenReturn( mockPage );
 
-        Pageable pageable = PageRequest.of(0, 1);
-        Page<AccountResponse> result = accountService.getAll(pageable);
+        Pageable pageable = PageRequest.of( 0, 1 );
+        Page<AccountResponse> result = accountService.getAll( pageable );
 
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.getTotalElements());
-        AccountResponse response = result.getContent().get(0);
-        assertEquals(id, response.getId());
-        assertEquals(name, response.getName());
-        assertEquals(email, response.getEmail());
+        assertFalse( result.isEmpty() );
+        assertEquals( 1, result.getTotalElements() );
+        AccountResponse response = result.getContent().get( 0 );
+        assertEquals( id, response.getId() );
+        assertEquals( name, response.getName() );
+        assertEquals( email, response.getEmail() );
     }
+
     @Test
     void getAllThrowsInvalidRequestException() {
-        Page<AccountEntity> mockPage = new PageImpl<>( Collections.emptyList());
+        Page<AccountEntity> mockPage = new PageImpl<>( Collections.emptyList() );
 
-        when(accountRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
+        when( accountRepository.findAll( any( Pageable.class ) ) ).thenReturn( mockPage );
 
-        Pageable pageable = PageRequest.of(0, 1);
+        Pageable pageable = PageRequest.of( 0, 1 );
 
-        assertThrows( InvalidRequestException.class, () -> accountService.getAll(pageable));
+        assertThrows( InvalidRequestException.class, () -> accountService.getAll( pageable ) );
     }
 
 

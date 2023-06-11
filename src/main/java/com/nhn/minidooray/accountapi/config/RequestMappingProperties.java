@@ -8,12 +8,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 public class RequestMappingProperties {
 
+    private final Account account = new Account();
+    private final AccountAccountState accountAccountState = new AccountAccountState();
     @Setter
     private String prefix;
-
-    private final Account account = new Account();
-    private final AccountState accountState = new AccountState();
-    private final AccountAccountState accountAccountState = new AccountAccountState();
 
     @Getter
     @Setter
@@ -30,43 +28,16 @@ public class RequestMappingProperties {
         private String updateAccountPasswordByEmail;
         private String updateLastLoginAt;
 
-        private String deactAccount;
-        private String deactAccountByEmailAccount;
-        private String deactAccountAll;
-        private String createAccountStateById;
-        private String createAccountStateByEmail;
     }
 
-    @Getter
-    @Setter
-    public static class AccountState {
-
-        private String create;
-
-        private String update;
-
-        private String readList;
-        private String readByCode;
-
-        private String deleteByCode;
-
-    }
 
     @Getter
     @Setter
     public static class AccountAccountState {
 
         private String create;
-        private String readListByAccountIdAndAccountStateCode;
 
-        private String readList;
+        private String readListByAccountId;
 
-        private String readListByAccountStateCode;
-
-        private String deleteListByAccountIdAndAccountStateCode;
-
-        private String deleteListByAccountId;
-
-        private String deleteListByAccountStateCode;
     }
 }

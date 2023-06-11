@@ -2,7 +2,6 @@ package com.nhn.minidooray.accountapi.repository;
 
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

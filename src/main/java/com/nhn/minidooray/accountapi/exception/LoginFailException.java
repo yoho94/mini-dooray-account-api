@@ -9,7 +9,7 @@ public class LoginFailException extends ApiException {
     private static final String SUFFIX = " is login fail";
 
     public LoginFailException(String target) {
-        super( target+SUFFIX, HttpStatus.UNAUTHORIZED.value());
+        super( target + SUFFIX, HttpStatus.UNAUTHORIZED.value() );
 
     }
 

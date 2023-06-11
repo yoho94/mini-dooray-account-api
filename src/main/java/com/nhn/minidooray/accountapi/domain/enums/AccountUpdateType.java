@@ -1,4 +1,6 @@
-package com.nhn.minidooray.accountapi.domain.request;
+package com.nhn.minidooray.accountapi.domain.enums;
+
+import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 
 public enum AccountUpdateType {
     NAME_UPDATE {

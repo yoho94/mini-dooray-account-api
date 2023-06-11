@@ -37,6 +37,7 @@ public class AccountAccountStateEntity {
     @ManyToOne
     @JoinColumn(name = "ACCOUNT_ID", referencedColumnName = "ID", nullable = false)
     private AccountEntity account;
+
     @Embeddable
     @Getter
     @Setter

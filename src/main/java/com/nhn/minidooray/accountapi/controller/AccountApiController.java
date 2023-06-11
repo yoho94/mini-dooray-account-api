@@ -1,11 +1,8 @@
 package com.nhn.minidooray.accountapi.controller;
 
-import com.nhn.minidooray.accountapi.config.ApiMessageProperties;
-import com.nhn.minidooray.accountapi.config.ValidationProperties.Account;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
-import com.nhn.minidooray.accountapi.domain.response.AccountWithStateResponse;
 import com.nhn.minidooray.accountapi.domain.response.CommonResponse;
 import com.nhn.minidooray.accountapi.domain.response.ResultResponse;
 import com.nhn.minidooray.accountapi.exception.ValidationFailedException;
@@ -39,7 +36,7 @@ public class AccountApiController {
     public ResultResponse<Void> createAccount(@RequestBody @Valid AccountCreateRequest request,
         BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             throw new ValidationFailedException( bindingResult );
         }
 
@@ -53,7 +50,7 @@ public class AccountApiController {
     public ResultResponse<Void> updateAccountName(@PathVariable String id,
         @RequestBody @Valid AccountUpdateRequest request, BindingResult bindingResult) {
 
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             throw new ValidationFailedException( bindingResult );
         }
 
@@ -65,7 +62,7 @@ public class AccountApiController {
     @PutMapping("${com.nhn.minidooray.accountapi.requestmapping.account.update-account-password}")
     public ResultResponse<CommonResponse> updateAccountPasswordById(@PathVariable String id,
         @RequestBody AccountUpdateRequest request, BindingResult bindingResult) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             throw new ValidationFailedException( bindingResult );
         }
 
@@ -82,28 +79,27 @@ public class AccountApiController {
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-list}")
     public ResultResponse<List<AccountResponse>> getAll(Pageable pageable) {
-        Page<AccountResponse> result = accountService.getAll(pageable);
+        Page<AccountResponse> result = accountService.getAll( pageable );
         return ResultResponse.fetched( Collections.singletonList( result.getContent() ) );
     }
 
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-by-id}")
-    public ResultResponse<AccountResponse> getAccount(@PathVariable("id") String id){
+    public ResultResponse<AccountResponse> getAccount(@PathVariable("id") String id) {
 
         AccountResponse account = accountService.get( id );
 
-    return ResultResponse.fetched( Collections.singletonList( account ) );
+        return ResultResponse.fetched( Collections.singletonList( account ) );
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-by-email}")
-    public ResultResponse<AccountResponse> getAccountByEmail(@PathVariable("email") String email){
+    public ResultResponse<AccountResponse> getAccountByEmail(@PathVariable("email") String email) {
 
         AccountResponse account = accountService.findByEmail( email );
 
         return ResultResponse.fetched( Collections.singletonList( account ) );
 
     }
-
 
 
 }

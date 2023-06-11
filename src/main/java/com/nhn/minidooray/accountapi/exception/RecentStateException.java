@@ -9,7 +9,7 @@ public class RecentStateException extends ApiException {
     private static final String SUFFIX = " is login fail";
 
     public RecentStateException(String target) {
-        super( target+SUFFIX, HttpStatus.UNAUTHORIZED.value());
+        super( target + SUFFIX, HttpStatus.UNAUTHORIZED.value() );
 
     }
 }

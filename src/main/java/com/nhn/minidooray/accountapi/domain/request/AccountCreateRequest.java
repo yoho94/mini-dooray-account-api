@@ -1,10 +1,9 @@
 package com.nhn.minidooray.accountapi.domain.request;
 
-import lombok.Builder;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import lombok.Builder;
+import lombok.Data;
 
 
 @Data

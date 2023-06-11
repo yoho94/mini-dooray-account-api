@@ -1,26 +1,26 @@
 package com.nhn.minidooray.accountapi.repository;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 @DataJpaTest
 class AccountRepositoryTest {
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger( this.getClass() );
 
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
     private AccountRepository accountRepository;
+
     @BeforeEach
-    void setUp(){
+    void setUp() {
         AccountEntity accountEntity = AccountEntity
             .builder()
             .id( "testAccountId" )
@@ -30,8 +30,9 @@ class AccountRepositoryTest {
             .build();
         accountRepository.save( accountEntity );
     }
+
     @Test
-    void save(){
+    void save() {
         AccountEntity accountEntity = AccountEntity
             .builder()
             .id( "testAccountId2" )
@@ -41,24 +42,26 @@ class AccountRepositoryTest {
             .build();
         AccountEntity saved = accountRepository.save( accountEntity );
 
-        assertEquals( "testAccountId2",saved.getId() );
+        assertEquals( "testAccountId2", saved.getId() );
     }
+
     @Test
-    void findById(){
+    void findById() {
         String id = "testAccountId";
 
         Optional<AccountEntity> accountEntity = accountRepository.findById( id );
 
         assertNotNull( accountEntity );
 
-        assertEquals( id,accountEntity.get().getId() );
+        assertEquals( id, accountEntity.get().getId() );
     }
+
     @Test
     void findByEmail() {
         String email = "test@example.com";
         Optional<AccountEntity> accountEntity = accountRepository.findByEmail( email );
         assertNotNull( accountEntity );
-        assertEquals( email,accountEntity.get().getEmail());
+        assertEquals( email, accountEntity.get().getEmail() );
 
     }
 

@@ -1,9 +1,9 @@
 package com.nhn.minidooray.accountapi.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.nhn.minidooray.accountapi.config.ValidationProperties.Account;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStateType;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity;
 import com.nhn.minidooray.accountapi.entity.AccountAccountStateEntity.Pk;
@@ -11,11 +11,7 @@ import com.nhn.minidooray.accountapi.entity.AccountEntity;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import net.bytebuddy.asm.Advice.Local;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -26,8 +22,6 @@ import org.springframework.data.domain.Sort;
 @DataJpaTest
 class AccountAccountStateRepositoryTest {
 
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger( this.getClass() );
-
     @Autowired
     private TestEntityManager entityManager;
     @Autowired
@@ -35,7 +29,6 @@ class AccountAccountStateRepositoryTest {
 
     @Autowired
     private AccountRepository accountRepository;
-
 
 
     @Test
@@ -56,48 +49,50 @@ class AccountAccountStateRepositoryTest {
                 .build() )
             .build();
 
-        entityManager.persist(account);
+        entityManager.persist( account );
 
         AccountAccountStateEntity savedAccountStateEntity = accountAccountStateRepository.save(
             expectedAccountStateEntity );
 
-        assertNotNull(savedAccountStateEntity);
-        assertEquals(AccountStateType.REGISTER.getCode(),
-            savedAccountStateEntity.getPk().getAccountStateCode());
+        assertNotNull( savedAccountStateEntity );
+        assertEquals( AccountStateType.REGISTER.getCode(),
+            savedAccountStateEntity.getPk().getAccountStateCode() );
     }
 
     @Test
     void findById() {
         AccountEntity account = AccountEntity.builder()
-            .id("testAccountId2")
-            .name("testAccountName2")
-            .password("testAccountPassword2")
-            .email("test2@email.com")
+            .id( "testAccountId2" )
+            .name( "testAccountName2" )
+            .password( "testAccountPassword2" )
+            .email( "test2@email.com" )
             .build();
 
         Pk pk = Pk.builder()
-            .accountId(account.getId())
-            .accountStateCode(AccountStateType.REGISTER.getCode())
-            .changeAt(LocalDateTime.now())
+            .accountId( account.getId() )
+            .accountStateCode( AccountStateType.REGISTER.getCode() )
+            .changeAt( LocalDateTime.now() )
             .build();
 
         AccountAccountStateEntity expectedAccountStateEntity = AccountAccountStateEntity.builder()
-            .account(account)
-            .pk(pk)
+            .account( account )
+            .pk( pk )
             .build();
 
-        entityManager.persist(account);
-        entityManager.persist(expectedAccountStateEntity);
+        entityManager.persist( account );
+        entityManager.persist( expectedAccountStateEntity );
 
-        AccountAccountStateEntity foundAccountStateEntity = accountAccountStateRepository.findById(pk)
+        AccountAccountStateEntity foundAccountStateEntity = accountAccountStateRepository.findById(
+                pk )
             .get();
 
         assertNotNull( foundAccountStateEntity );
-        assertThat(foundAccountStateEntity).isNotNull();
-        assertThat(foundAccountStateEntity.getAccount().getId()).isEqualTo(account.getId());
-        assertThat(foundAccountStateEntity.getPk().getAccountId()).isEqualTo(pk.getAccountId());
-        assertThat(foundAccountStateEntity.getPk().getAccountStateCode()).isEqualTo(pk.getAccountStateCode());
-        assertThat(foundAccountStateEntity.getPk().getChangeAt()).isEqualTo(pk.getChangeAt());
+        assertThat( foundAccountStateEntity ).isNotNull();
+        assertThat( foundAccountStateEntity.getAccount().getId() ).isEqualTo( account.getId() );
+        assertThat( foundAccountStateEntity.getPk().getAccountId() ).isEqualTo( pk.getAccountId() );
+        assertThat( foundAccountStateEntity.getPk().getAccountStateCode() ).isEqualTo(
+            pk.getAccountStateCode() );
+        assertThat( foundAccountStateEntity.getPk().getChangeAt() ).isEqualTo( pk.getChangeAt() );
     }
 
 
@@ -107,33 +102,35 @@ class AccountAccountStateRepositoryTest {
         int pageSize = 5;
 
         AccountEntity account = AccountEntity.builder()
-            .id(accountId)
-            .name("testAccountName2")
-            .password("testAccountPassword2")
-            .email("test2@email.com")
+            .id( accountId )
+            .name( "testAccountName2" )
+            .password( "testAccountPassword2" )
+            .email( "test2@email.com" )
             .build();
 
         List<AccountAccountStateEntity> stateEntities = new ArrayList<>();
-        for(int i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             AccountAccountStateEntity stateEntity = AccountAccountStateEntity.builder()
-                .account(account)
-                .pk(Pk.builder()
-                    .accountId(account.getId())
-                    .accountStateCode(AccountStateType.REGISTER.getCode())
-                    .changeAt(LocalDateTime.now().minusDays(i))
-                    .build())
+                .account( account )
+                .pk( Pk.builder()
+                    .accountId( account.getId() )
+                    .accountStateCode( AccountStateType.REGISTER.getCode() )
+                    .changeAt( LocalDateTime.now().minusDays( i ) )
+                    .build() )
                 .build();
 
-            entityManager.persist(stateEntity);
-            stateEntities.add(stateEntity);
+            entityManager.persist( stateEntity );
+            entityManager.flush();
+            stateEntities.add( stateEntity );
         }
 
-        PageRequest pageRequest = PageRequest.of(0, pageSize, Sort.by("pk.changeAt").ascending());
+        PageRequest pageRequest = PageRequest.of( 0, pageSize,
+            Sort.by( "pk.changeAt" ).ascending() );
         Page<AccountAccountStateEntity> page = accountAccountStateRepository
-            .findAllByAccount_IdOrderByPk_ChangeAt(accountId, pageRequest);
+            .findAllByAccount_IdOrderByPk_ChangeAt( accountId, pageRequest );
 
-        assertThat(page.getTotalElements()).isEqualTo(10);
-        assertThat(page.getContent().size()).isEqualTo(5);
+        assertThat( page.getTotalElements() ).isEqualTo( 10 );
+        assertThat( page.getContent().size() ).isEqualTo( 5 );
     }
 
 
@@ -156,17 +153,18 @@ class AccountAccountStateRepositoryTest {
         AccountAccountStateEntity accountAccountStateEntity = AccountAccountStateEntity
             .builder()
             .account( account )
-            .pk( pk)
+            .pk( pk )
             .build();
         accountAccountStateRepository.save( accountAccountStateEntity );
 
         pk.setAccountStateCode( AccountStateType.DORMANT.getCode() );
         pk.setChangeAt( LocalDateTime.now().plusHours( 1L ) );
 
-       AccountAccountStateEntity topChange= accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(accountId ).get();
+        AccountAccountStateEntity topChange = accountAccountStateRepository.findTopByAccount_IdOrderByPk_ChangeAtDesc(
+            accountId ).get();
 
         assertNotNull( topChange );
-        assertEquals( AccountStateType.DORMANT.getCode(),topChange.getPk().getAccountStateCode() );
+        assertEquals( AccountStateType.DORMANT.getCode(), topChange.getPk().getAccountStateCode() );
 
     }
 }

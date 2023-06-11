@@ -7,20 +7,21 @@ import java.util.regex.Pattern;
  * 요청에 들어온 식별자 값을 ID, EMAIL로 분리
  */
 public class IdOrEmailUtills {
-    private IdOrEmailUtills() {
-
-    }
 
     private static final String REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
 
+    private IdOrEmailUtills() {
+
+    }
 
     /**
      * @param target id Or email
      * @return true : email
      */
     public static boolean checkIdOrEmail(String target) {
-        return checkEmail(target);
+        return checkEmail( target );
     }
+
     /**
      * @param target id Or email
      * @return true : id

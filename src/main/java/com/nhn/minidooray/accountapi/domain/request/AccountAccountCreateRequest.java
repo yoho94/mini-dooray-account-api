@@ -9,7 +9,6 @@ import lombok.Data;
 @Builder
 public class AccountAccountCreateRequest {
 
-    // accountId -> idOrEmail
     @NotEmpty
     @Size(min = 5, max = 100)
     private String accountId;

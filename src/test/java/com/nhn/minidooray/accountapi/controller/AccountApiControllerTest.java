@@ -1,15 +1,14 @@
 package com.nhn.minidooray.accountapi.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nhn.minidooray.accountapi.config.RequestMappingProperties.Account;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStateType;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
@@ -18,7 +17,6 @@ import com.nhn.minidooray.accountapi.service.AccountService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -92,9 +90,9 @@ class AccountApiControllerTest {
     @Test
     void updateAccountName_InvalidRequest_ThrowsValidationFailedException() throws Exception {
         // TODO NAME이 null값이 들어가도 200 OK 발생 중
-        String id = "normalId";
+        String id = "nornalId";
         AccountUpdateRequest request = AccountUpdateRequest.builder()
-            .name( null )
+            .name( "sdfhishivxcjhihweuhfiuqoeirywiuhvsjvbdsfsdfihxcvhihvuiwf" )
             .build();
 
         mockMvc.perform( put( "/account-api/accounts/update/" + id + "/name" )

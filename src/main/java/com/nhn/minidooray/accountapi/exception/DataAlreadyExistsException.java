@@ -9,7 +9,7 @@ public class DataAlreadyExistsException extends ApiException {
     private static final String SUFFIX = " already exists";
 
     public DataAlreadyExistsException(String target) {
-        super(target + SUFFIX, HttpStatus.CONFLICT.value());
+        super( target + SUFFIX, HttpStatus.CONFLICT.value() );
     }
 
 }
