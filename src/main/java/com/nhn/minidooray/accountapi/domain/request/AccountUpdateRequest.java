@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AccountUpdateRequest {
 
+    @Size(max=20)
     private String name;
     @Size(max = 60)
     private String password;

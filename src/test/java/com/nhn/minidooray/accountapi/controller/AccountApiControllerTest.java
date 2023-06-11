@@ -1,6 +1,7 @@
 package com.nhn.minidooray.accountapi.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -9,14 +10,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.minidooray.accountapi.config.RequestMappingProperties.Account;
+import com.nhn.minidooray.accountapi.domain.enums.AccountStateType;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
+import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
 import com.nhn.minidooray.accountapi.service.AccountService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -102,7 +111,6 @@ class AccountApiControllerTest {
             .password( "updatedPassword" )
             .build();
 
-
         mockMvc.perform( put( "/account-api/accounts/update/" + id + "/password" )
                 .contentType( MediaType.APPLICATION_JSON )
                 .content( new ObjectMapper().writeValueAsString( request ) ) )
@@ -112,18 +120,99 @@ class AccountApiControllerTest {
     }
 
     @Test
-    void updateLastLoginAtById() {
+    void updateLastLoginAtById() throws Exception {
+        String id = "normalId";
+
+        mockMvc.perform( get( "/account-api/login/" + id ) )
+            .andExpect( jsonPath( "$.header.successful" ).value( true ) )
+            .andExpect( jsonPath( "$.header.resultCode" ).value( HttpStatus.OK.value() ) )
+            .andExpect( jsonPath( "$.header.resultMessage" ).value( "updated successfully" ) );
+    }
+
+
+    @Test
+    void getAllAccounts_ValidRequest_ReturnsAccountList() throws Exception {
+        List<AccountResponse> accountList = new ArrayList<>();
+        accountList.add( AccountResponse.builder()
+            .id( "normalId1" )
+            .name( "normalName1" )
+            .email( "normalEmail1@email.com" )
+            .password( "normalPassword1" )
+            .accountStateCode( AccountStateType.REGISTER.getCode() )
+            .accountStateChangeAt( LocalDateTime.now() )
+            .lastLoginAt( LocalDateTime.now() )
+            .createAt( LocalDateTime.now() )
+            .build() );
+        accountList.add( AccountResponse.builder()
+            .id( "normalId2" )
+            .name( "normalName2" )
+            .email( "normalEmail2@email.com" )
+            .password( "normalPassword2" )
+            .accountStateCode( AccountStateType.REGISTER.getCode() )
+            .accountStateChangeAt( LocalDateTime.now() )
+            .lastLoginAt( LocalDateTime.now() )
+            .createAt( LocalDateTime.now() )
+            .build() );
+        Page<AccountResponse> page = new PageImpl<>( accountList );
+        when( accountService.getAll( any( Pageable.class ) ) ).thenReturn( page );
+
+        mockMvc.perform( get( "/account-api/accounts" )
+                .param( "page", "0" )
+                .param( "size", "10" )
+                .param( "sort", "id,asc" ) )
+            .andExpect( jsonPath( "$.header.successful" ).value( true ) )
+            .andExpect( jsonPath( "$.header.resultCode" ).value( HttpStatus.OK.value() ) )
+            .andExpect( jsonPath( "$.header.resultMessage" ).value( "retrieved successfully" ) )
+            .andExpect( jsonPath( "$.result[0]" ).isArray() )
+            .andExpect( jsonPath( "$.result[0][0].id" ).value( accountList.get( 0 ).getId() ) )
+            .andExpect( jsonPath( "$.result[0][0].name" ).value( accountList.get( 0 ).getName() ) );
+    }
+
+
+    @Test
+    void getAccount() throws Exception {
+        AccountResponse response = AccountResponse.builder()
+            .id( "normalId1" )
+            .name( "normalName1" )
+            .email( "normalEmail1@email.com" )
+            .password( "normalPassword1" )
+            .accountStateCode( AccountStateType.REGISTER.getCode() )
+            .accountStateChangeAt( LocalDateTime.now() )
+            .lastLoginAt( LocalDateTime.now() )
+            .createAt( LocalDateTime.now() )
+            .build();
+
+        when( accountService.get( "normalId1" ) ).thenReturn( response );
+
+        mockMvc.perform( get( "/account-api/accounts/" + "normalId1" ) )
+            .andExpect( jsonPath( "$.header.successful" ).value( true ) )
+            .andExpect( jsonPath( "$.header.resultCode" ).value( HttpStatus.OK.value() ) )
+            .andExpect( jsonPath( "$.header.resultMessage" ).value( "retrieved successfully" ) )
+            .andExpect( jsonPath( "$.result[0].id" ).value( response.getId() ) )
+            .andExpect( jsonPath( "$.result[0].name" ).value( response.getName() ) );
     }
 
     @Test
-    void getAll() {
+    void getAccountByEmail() throws Exception {
+        AccountResponse response = AccountResponse.builder()
+            .id( "normalId1" )
+            .name( "normalName1" )
+            .email( "normalEmail1@email.com" )
+            .password( "normalPassword1" )
+            .accountStateCode( AccountStateType.REGISTER.getCode() )
+            .accountStateChangeAt( LocalDateTime.now() )
+            .lastLoginAt( LocalDateTime.now() )
+            .createAt( LocalDateTime.now() )
+            .build();
+
+        when( accountService.findByEmail( "normalId1@email.com" ) ).thenReturn( response );
+
+        mockMvc.perform( get( "/account-api/accounts/email/" + "normalId1@email.com" ) )
+            .andExpect( jsonPath( "$.header.successful" ).value( true ) )
+            .andExpect( jsonPath( "$.header.resultCode" ).value( HttpStatus.OK.value() ) )
+            .andExpect( jsonPath( "$.header.resultMessage" ).value( "retrieved successfully" ) )
+            .andExpect( jsonPath( "$.result[0].email" ).value( response.getEmail() ) )
+            .andExpect( jsonPath( "$.result[0].name" ).value( response.getName() ) );
     }
 
-    @Test
-    void getAccount() {
-    }
-
-    @Test
-    void getAccountByEmail() {
-    }
 }
