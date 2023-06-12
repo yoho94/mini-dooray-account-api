@@ -10,6 +10,7 @@ import com.nhn.minidooray.accountapi.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -83,9 +84,9 @@ public class AccountApiController {
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-list}")
-    public ResultResponse<List<AccountResponse>> getAll(Pageable pageable) {
+    public ResultResponse<Page<AccountResponse>> getAll(Pageable pageable) {
         Page<AccountResponse> result = accountService.getAll(pageable);
-        return ResultResponse.fetched(Collections.singletonList(result.getContent()));
+        return ResultResponse.fetched(Collections.singletonList(result));
     }
 
 
@@ -95,6 +96,14 @@ public class AccountApiController {
         AccountResponse account = accountService.get(id);
 
         return ResultResponse.fetched(Collections.singletonList(account));
+    }
+
+    @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-accounts-by-id}")
+    public ResultResponse<AccountResponse> getAccountsById(@Param("id") String[] ids) {
+
+        List<AccountResponse> account = accountService.getAccountsById(ids);
+
+        return ResultResponse.fetched(account);
     }
 
     @GetMapping("${com.nhn.minidooray.accountapi.requestmapping.account.read-account-by-email}")
