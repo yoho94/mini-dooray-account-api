@@ -1,0 +1,53 @@
+### CREATE ACCOUNT
+POST /account-api/accounts HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "id": "exampleID13",
+  "password": "securePassword13",
+  "email": "example130@email.com",
+  "name": "Example13 Name"
+}
+
+### UPDATE LAST LOGIN AT
+GET /account-api/login/exampleID10 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+
+
+### READ ALL
+GET /account-api/accounts?page=0&size=5 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+
+### READ ACCOUNT BY ID
+GET /account-api/accounts/exampleID HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+### READ ACCOUNT BY EMAIL
+GET /account-api/accounts/email/example10@email.com HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+
+### UPDATE NAME BY ID
+PUT /account-api/accounts/update/exampleID/name HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "name": "updated Name"
+}
+
+### UPDATE PASSWORD BY ID
+PUT /account-api/accounts/update/exampleID/password HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "password": "updatedByIdPassword"
+}

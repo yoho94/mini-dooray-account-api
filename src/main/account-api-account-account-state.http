@@ -1,0 +1,18 @@
+### CREATE ACCOUNT ACCOUNT STATE
+POST /account-api/account-account-state
+Host: localhost:8080
+Content-Type: application/json
+
+{
+  "accountId": "exampleID",
+  "accountStateCode": "04"
+}
+
+### READ ALL BY ACCOUNT
+
+GET /account-api/account-account-state/exampleID/list?page=0&size=3 HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+
+
+
