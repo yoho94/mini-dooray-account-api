@@ -1,22 +1,11 @@
 package com.nhn.minidooray.accountapi.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.minidooray.accountapi.domain.enums.AccountStateType;
 import com.nhn.minidooray.accountapi.domain.request.AccountCreateRequest;
 import com.nhn.minidooray.accountapi.domain.request.AccountUpdateRequest;
 import com.nhn.minidooray.accountapi.domain.response.AccountResponse;
 import com.nhn.minidooray.accountapi.service.AccountService;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,6 +16,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AccountApiController.class)
 class AccountApiControllerTest {
@@ -161,9 +160,9 @@ class AccountApiControllerTest {
             .andExpect( jsonPath( "$.header.successful" ).value( true ) )
             .andExpect( jsonPath( "$.header.resultCode" ).value( HttpStatus.OK.value() ) )
             .andExpect( jsonPath( "$.header.resultMessage" ).value( "retrieved successfully" ) )
-            .andExpect( jsonPath( "$.result[0]" ).isArray() )
-            .andExpect( jsonPath( "$.result[0][0].id" ).value( accountList.get( 0 ).getId() ) )
-            .andExpect( jsonPath( "$.result[0][0].name" ).value( accountList.get( 0 ).getName() ) );
+            .andExpect( jsonPath( "$.result" ).isArray() )
+            .andExpect( jsonPath( "$.result[0].content[0].id" ).value( accountList.get( 0 ).getId() ) )
+            .andExpect( jsonPath( "$.result[0].content[0].name" ).value( accountList.get( 0 ).getName() ) );
     }
 
 
